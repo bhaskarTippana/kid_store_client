@@ -51,7 +51,7 @@ const Categories = () => {
   // let id = useSelector(e=>e.user._id);
   const selector = useSelector((e) => e.myProducts);
   const carSelector = useSelector((e) => e.user.cart);
-  console.log(carSelector,"yyyy");
+  console.log(carSelector, "yyyy");
   const { category } = useParams();
   const navigate = useNavigate();
   const [wishlist, setWishList] = useState(
@@ -69,14 +69,20 @@ const Categories = () => {
       if (token) {
         let res = await axios.post(
           "http://localhost:5500/cart",
-          { type: "ADD_CART", product:e  },
+          {
+            action: "ADD_CART",
+            product: e,
+          },
           {
             headers: {
               token,
             },
           }
         );
-        dispatch({ type: "ADD_TO_CART", payload: res.data });
+        // console.log(res.data.cart);
+        if (res.status === 200) {
+          dispatch({ type: "ADD_TO_CART", payload: e });
+        }
       } else {
         navigate("/login");
       }

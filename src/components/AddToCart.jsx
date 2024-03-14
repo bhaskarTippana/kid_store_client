@@ -6,43 +6,63 @@ import axios from "axios";
 import CartCard from "./CartCard";
 import { useDispatch, useSelector } from "react-redux";
 const AddToCart = () => {
+  let [data,setData] = useState();
+  let token = localStorage.getItem("token");
   const dispatch = useDispatch();
-  console.log(useSelector((e) => e.user));
-  // const [items, setItems] = useState([]);
-  // const handleQuantityChange = (e) => {
-  //   setQuantity(parseInt(e.target.value));
-  // };
-  const items = useSelector((e) => e.cart);
-  const [actualCost, setActualCost] = useState(0);
-  const [premium, setPremium] = useState(0);
+  const selector = useSelector((e) => e.user);
 
-  const handleRemoveItem = () => {
-    // Implement the logic to remove the item from the cart
-    console.log("Item removed from cart");
-  };
+  const cart = selector.cart;
 
-  const cartItems = async (req, res) => {
-    const user_id = localStorage.getItem("token");
-    const response = await axios.post(
-      `http://localhost:5500/products/${user_id}`,
-      { type: "add" },{
-        headers:{
-          token:user_id
-        }
+  const AddedProducts = async () => {
+    try {
+      if (token) {
+        const res = await axios.post(
+          "http://localhost:5500/cart",
+          {},
+          {
+            headers: {
+              token,
+            },
+          }
+        );
+        // console.log(res.data);
+        // setData(res.data.cart)
+        dispatch({ type: "USER_DATA", payload: res.data });
       }
-    );
-    // setItems(response.data);
-    // console.log(response.data);
-    // const productsArray = response.data;
-
-    // Dispatching the action
-    // dispatch({ type: "MY_PRODUCTS", payload: productsArray });
+    } catch (error) {}
   };
 
-  const gst = Math.round(premium * 0.18);
+  const deleteProduct = async(e)=>{
+    try {
+      if (token) {
+        let res = await axios.post(
+          "http://localhost:5500/cart",
+          {
+            action: "DELETE_CART",
+            product: e,
+          },
+          {
+            headers: {
+              token,
+            },
+          }
+        );
+        if (res.status === 200) {
+           dispatch({ type: "USER_DATA", payload: res.data });
+        }
+      } else {
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  // const gst = Math.round(premium * 0.18);
+
   useEffect(() => {
-    cartItems();
-  }, [items]);
+    AddedProducts();
+  }, []);
 
   return (
     <>
@@ -51,6 +71,15 @@ const AddToCart = () => {
         <h1 className="pt-5 px-5 text-3xl font-semibold col-span-12">
           Shopping Cart!
         </h1>
+        {cart.length !== 0 &&
+          cart.map((e, _) => {
+            return (
+              <div key={_}>
+                <h1>{e.name}</h1>
+                <h1 onClick={()=>deleteProduct(e)}>X</h1>
+              </div>
+            );
+          })}
         {/* {items.length !== 0 &&
           items.map((e, _) => {
             return (
@@ -66,7 +95,7 @@ const AddToCart = () => {
               </div>
             );
           })} */}
-      {/* {!actualCost <=0 ? <div className="col-span-4 m-3 sticky w-full bottom-0 right-5">
+        {/* {!actualCost <=0 ? <div className="col-span-4 m-3 sticky w-full bottom-0 right-5">
           <div className="h-80 bg-gray-100 w-full rounded-xl border p-5 grid">
             <h1 className="text-2xl">Order Summary</h1>
             <h1 className="border-b-2 pt-1 ">
@@ -88,7 +117,6 @@ const AddToCart = () => {
             </button>
           </div>
         </div>:<div>Nothing is there!</div>} */}
-
       </div>
     </>
   );
