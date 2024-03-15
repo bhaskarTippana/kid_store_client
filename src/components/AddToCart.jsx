@@ -5,9 +5,11 @@ import { NavBar } from "./NavBar";
 import axios from "axios";
 import CartCard from "./CartCard";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 const AddToCart = () => {
   let [data,setData] = useState();
   let token = localStorage.getItem("token");
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const selector = useSelector((e) => e.user);
 
@@ -28,35 +30,13 @@ const AddToCart = () => {
         // console.log(res.data);
         // setData(res.data.cart)
         dispatch({ type: "USER_DATA", payload: res.data });
+      }else{
+        navigate('/login');
       }
     } catch (error) {}
   };
 
-  const deleteProduct = async(e)=>{
-    try {
-      if (token) {
-        let res = await axios.post(
-          "http://localhost:5500/cart",
-          {
-            action: "DELETE_CART",
-            product: e,
-          },
-          {
-            headers: {
-              token,
-            },
-          }
-        );
-        if (res.status === 200) {
-           dispatch({ type: "USER_DATA", payload: res.data });
-        }
-      } else {
-        navigate("/login");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
+
 
   // const gst = Math.round(premium * 0.18);
 
@@ -71,7 +51,7 @@ const AddToCart = () => {
         <h1 className="pt-5 px-5 text-3xl font-semibold col-span-12">
           Shopping Cart!
         </h1>
-        {cart.length !== 0 &&
+        {/* {cart.length !== 0 &&
           cart.map((e, _) => {
             return (
               <div key={_}>
@@ -79,9 +59,9 @@ const AddToCart = () => {
                 <h1 onClick={()=>deleteProduct(e)}>X</h1>
               </div>
             );
-          })}
-        {/* {items.length !== 0 &&
-          items.map((e, _) => {
+          })} */}
+        {cart.length !== 0 &&
+          cart.map((e, _) => {
             return (
               <div
                 className="col-span-8 m-3 rounded-xl border bg-gray-100"
@@ -89,12 +69,12 @@ const AddToCart = () => {
               >
                 <CartCard
                   e={e}
-                  setActualCost={setActualCost}
-                  setPremium={setPremium}
+                  // setActualCost={setActualCost}
+                  // setPremium={setPremium}
                 />
               </div>
             );
-          })} */}
+          })}
         {/* {!actualCost <=0 ? <div className="col-span-4 m-3 sticky w-full bottom-0 right-5">
           <div className="h-80 bg-gray-100 w-full rounded-xl border p-5 grid">
             <h1 className="text-2xl">Order Summary</h1>
