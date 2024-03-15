@@ -48,10 +48,7 @@ function StarRating({ rating }) {
 const Categories = () => {
   let token = localStorage.getItem("token");
   const dispatch = useDispatch();
-  // let id = useSelector(e=>e.user._id);
   const selector = useSelector((e) => e.myProducts);
-  const carSelector = useSelector((e) => e.user.cart);
-  console.log(carSelector, "yyyy");
   const { category } = useParams();
   const navigate = useNavigate();
   const [wishlist, setWishList] = useState(
@@ -79,9 +76,8 @@ const Categories = () => {
             },
           }
         );
-        // console.log(res.data.cart);
         if (res.status === 200) {
-          dispatch({ type: "ADD_TO_CART", payload: e });
+          dispatch({ type: "USER_DATA", payload: res.data });
         }
       } else {
         navigate("/login");
@@ -95,25 +91,36 @@ const Categories = () => {
     getCategories();
   }, []);
 
-  const handleWishList = async (id, heart, _) => {
-    for (let index = 0; index < selector.length; index++) {
-      if (index === _) {
-        setWishList((prevWishlist) => {
-          const updatedWishlist = [...prevWishlist]; // Make a copy of the original array
-          updatedWishlist[_] = heart === "add"; // Set the value at index _ based on the condition
-          return updatedWishlist; // Return the updated array
-        });
-      }
-    }
-
+  const handleWishList = async (e, heart, _) => {
     try {
-      const user_id = localStorage.getItem("user");
-      const res = await axios.post("http://localhost:5500/wishlist", {
-        user_id: user_id,
-        pid: id,
-        type: heart === "add" ? "add" : "del",
-      });
-      console.log(res, "resssssssssss");
+      if (token) {
+        for (let index = 0; index < selector.length; index++) {
+          if (index === _) {
+            setWishList((prevWishlist) => {
+              const updatedWishlist = [...prevWishlist]; // Make a copy of the original array
+              updatedWishlist[_] = heart === "add"; // Set the value at index _ based on the condition
+              return updatedWishlist; // Return the updated array
+            });
+          }
+        }
+        let res = await axios.post(
+          "http://localhost:5500/cart",
+          {
+            action: heart === "add" ? "ADD_WISHLIST" : "DELETE_WISHLIST",
+            product: e,
+          },
+          {
+            headers: {
+              token,
+            },
+          }
+        );
+        if (res.status === 200) {
+          dispatch({ type: "USER_DATA", payload: res.data });
+        }
+      } else {
+        navigate("/login");
+      }
     } catch (error) {
       console.log(error);
     }
@@ -132,13 +139,16 @@ const Categories = () => {
             return (
               <div
                 key={_}
-                className="p-2 text-white  h-60 w-44 md:w-52 md:h-60 rounded-xl md:mb-12 lg:h-80 lg:w-80"
+                className="p-2 text-white  h-60 w-44 md:w-52 md:h-60 rounded-xl md:mb-12 lg:h-[22rem] lg:w-[22rem]"
               >
-                <div className="h-3/4">
+                <div
+                  className="h-3/4"
+                >
                   <img
                     className="w-full h-full rounded-t-xl"
                     src={e.url}
                     alt=""
+                    onClick={() => navigate(`/product/${e._id}`)}
                   />
                 </div>
                 <div className=" h-1/3 rounded-b-xl p-2 bg-[#176B87]">
@@ -167,21 +177,22 @@ const Categories = () => {
                         ❤️
                       </span>} */}
                       {wishlist[_] ? (
-                        <span onClick={() => handleWishList(e._id, "del", _)}>
+                        <span onClick={() => handleWishList(e, "del", _)}>
                           ❤️
                         </span>
                       ) : (
-                        <span onClick={() => handleWishList(e._id, "add", _)}>
+                        <span onClick={() => handleWishList(e, "add", _)}>
                           🤍
                         </span>
                       )}
                     </button>
+{/* 
                     <button
                       className="p-1 border w-fit rounded-md text-center bg-yellow-300 hover:bg-lime-500"
                       onClick={() => navigate(`/product/${e._id}`)}
                     >
-                      Buy Now
-                    </button>
+                      About  Product{" "}
+                    </button> */}
                   </div>
                 </div>
               </div>

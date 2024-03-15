@@ -20,12 +20,12 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/categories" element={<Home />} />
         <Route path="/category/:category" element={<Categories />} />
-        {/* <Route path="/product/:id" element={<Product />} /> */}
+        <Route path="/product/:id" element={<Product />} />
         {/* <Route path="/summary" element={<Summary />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/cartItems" element={<AddToCart />} />
-        {/* <Route path="/wishlist" element={<AddToFav />} /> */}
+        <Route path="/wishlist" element={<AddToFav />} />
       </Routes>
     </BrowserRouter>
 </Provider>
