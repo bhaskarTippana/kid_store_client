@@ -22,7 +22,7 @@ export const NavBar = () => {
   const selector = useSelector((e) => e.user);
   const [title, setTitle] = useState([]);
   const getTitles = async () => {
-    const res = await axios.get("http://localhost:5500/kids-store/titles");
+    const res = await axios.get("https://kids-store-api.onrender.com/kids-store/titles");
     setTitle(res.data);
   };
 
@@ -30,7 +30,7 @@ export const NavBar = () => {
     try {
       if (token) {
         const res = await axios.post(
-          "http://localhost:5500/cart",
+          "https://kids-store-api.onrender.com/cart",
           {},
           {
             headers: {

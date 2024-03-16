@@ -1,8 +1,11 @@
 import React from "react";
 import notFound from "../Assets/notFound.svg";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 const NoProductPage = () => {
     const navigate = useNavigate();
+   const selector  = useSelector((e)=>e.user);
+console.log(selector);
   return (
     <div className="w-full h-1/3 flex flex-col lg:flex-row items-center justify-center space-y-16 lg:space-y-0 space-x-8 2xl:space-x-0">
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center lg:px-2 xl:px-0 text-center">

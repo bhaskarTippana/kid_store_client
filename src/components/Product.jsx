@@ -13,7 +13,7 @@ const Product = () => {
 
   const getSpec = async () => {
     const res = await axios.get(
-      `http://localhost:5500/kids-store/products/${params.id}`
+      `https://kids-store-api.onrender.com/kids-store/products/${params.id}`
     );
     setSpecificProduct(res.data);
   };

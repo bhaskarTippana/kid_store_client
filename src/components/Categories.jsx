@@ -56,7 +56,7 @@ const Categories = () => {
   );
   const getCategories = async () => {
     const res = await axios.get(
-      `http://localhost:5500/kids-store/category/${category}`
+      `https://kids-store-api.onrender.com/kids-store/category/${category}`
     );
     dispatch({ type: "MY_PRODUCTS", payload: res.data });
   };
@@ -65,7 +65,7 @@ const Categories = () => {
     try {
       if (token) {
         let res = await axios.post(
-          "http://localhost:5500/cart",
+          "https://kids-store-api.onrender.com/cart",
           {
             action: "ADD_CART",
             product: e,
@@ -104,7 +104,7 @@ const Categories = () => {
           }
         }
         let res = await axios.post(
-          "http://localhost:5500/cart",
+          "https://kids-store-api.onrender.com/cart",
           {
             action: heart === "add" ? "ADD_WISHLIST" : "DELETE_WISHLIST",
             product: e,

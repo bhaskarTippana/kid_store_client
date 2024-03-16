@@ -25,7 +25,7 @@ const Register = ({setModal}) => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:5500/register",
+        "https://kids-store-api.onrender.com/register",
         data,
         {
           headers: {

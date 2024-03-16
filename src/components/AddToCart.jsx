@@ -22,7 +22,7 @@ const AddToCart = () => {
     try {
       if (token) {
         const res = await axios.post(
-          "http://localhost:5500/cart",
+          "https://kids-store-api.onrender.com/cart",
           {},
           {
             headers: {
@@ -35,6 +35,31 @@ const AddToCart = () => {
         navigate("/login");
       }
     } catch (error) {}
+  };
+
+  const handleBuyCart = async () => {
+    try {
+      if (token) {
+        const res = await axios.post(
+          "https://kids-store-api.onrender.com/buyCart",
+          {
+            action: "MULTI_PRODUCTS",
+          },
+          {
+            headers: {
+              token,
+            },
+          }
+        );
+        console.log(res);
+        if (res.status === 200) {
+          dispatch({ type: "USER_DATA", payload: res.data });
+          navigate("/checkout");
+        }
+      }
+    } catch (error) {
+      console.error("Error buying cart:", error);
+    }
   };
 
   const gst = Math.round(premium * 0.18);
@@ -83,7 +108,7 @@ const AddToCart = () => {
               <h1 className="border-b-2 pt-1">
                 Total Price : $ {premium + gst}
               </h1>
-              <button className="rounded bg-blue-500 text-white">
+              <button className="rounded bg-blue-500 text-white" onClick={handleBuyCart}>
                 Checkout Now
               </button>
             </div>

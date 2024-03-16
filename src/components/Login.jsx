@@ -16,7 +16,7 @@ const Login = () => {
       const key = username && username.includes("@") ? "email" : "firstName";
       // Send the data to the backend
       const response = await axios.post(
-        "http://localhost:5500/login",
+        "https://kids-store-api.onrender.com/login",
         { [key]: data.username, password: data.password },
         {
           headers: {
