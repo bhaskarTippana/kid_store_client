@@ -133,7 +133,7 @@ const Categories = () => {
   return (
     <>
       <NavBar />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 bg-[#176b8714] place-items-center p-2 relative">
+      {/* <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 bg-[#176b8714] place-items-center p-2 relative">
         {selector.length !== 0 &&
           selector.map((e, _) => {
             return (
@@ -170,12 +170,6 @@ const Categories = () => {
                       Add To Cart <i className="fa-solid fa-cart-shopping"></i>
                     </button>
                     <button>
-                      {/* {!wishlist&&<span onClick={() => handleWishList(e._id, "add",_)}>
-                        🤍
-                      </span>}
-                      {wishlist&&<span onClick={() => handleWishList(e._id, "del",_)}>
-                        ❤️
-                      </span>} */}
                       {wishlist[_] ? (
                         <span onClick={() => handleWishList(e, "del", _)}>
                           ❤️
@@ -186,14 +180,60 @@ const Categories = () => {
                         </span>
                       )}
                     </button>
-{/* 
-                    <button
-                      className="p-1 border w-fit rounded-md text-center bg-yellow-300 hover:bg-lime-500"
-                      onClick={() => navigate(`/product/${e._id}`)}
-                    >
-                      About  Product{" "}
-                    </button> */}
                   </div>
+                </div>
+              </div>
+            );
+          })}
+      </div> */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 bg-[#176b8714] place-items-center p-2 relative">
+        {selector.length !== 0 &&
+          selector.map((e, index) => {
+            return (
+              <div
+                key={index}
+                className="flex flex-col justify-between p-2 text-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 ease-in-out"
+                style={{ width: "300px", height: "300px" }}
+              >
+                <div className="h-full relative overflow-hidden rounded-t-xl">
+                  <img
+                    className="w-full h-full object-cover rounded-t-xl cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out"
+                    src={e.url}
+                    alt=""
+                    onClick={() => navigate(`/product/${e._id}`)}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      overflow: "hidden",
+                    }} // Set equal width and height for images
+                  />
+                  <div className="absolute bottom-0 left-0 w-full p-2 bg-black bg-opacity-50">
+                    <p className="text-white text-sm truncate">{e.name}</p>
+                    <div className="flex justify-between items-center mt-1">
+                      <StarRating rating={e.rating} />
+                      <p className="mx-auto border w-10 rounded-md text-center bg-blue-100 text-blue-800">
+                        {e.rating}
+                      </p>
+                      <p className="text-white">{e.price}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="h-1/4 flex justify-between items-center p-2 bg-[#176B87] rounded-b-xl">
+                  <button
+                    className="px-3 py-1 border rounded-md text-white bg-blue-500 hover:bg-blue-600 transition duration-300 ease-in-out"
+                    onClick={() => addToCartHandler(e)}
+                  >
+                    Add To Cart <i className="fa-solid fa-cart-shopping"></i>
+                  </button>
+                  <button
+                    className="text-xl"
+                    onClick={() =>
+                      handleWishList(e, wishlist[index] ? "del" : "add", index)
+                    }
+                  >
+                    {wishlist[index] ? "❤️" : "🤍"}
+                  </button>
                 </div>
               </div>
             );

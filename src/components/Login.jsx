@@ -34,7 +34,7 @@ const Login = () => {
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#00000075]">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500">
       <div className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-4/12 bg-white p-8 rounded-lg shadow-md animate-fade-in">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Login
