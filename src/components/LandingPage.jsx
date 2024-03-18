@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import baby from "../Assets/baby.avif";
 import babu from "../Assets/babu.avif";
 import { NavBar } from "./NavBar";
+import Footer from "./Footer";
 import { redirect, useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -46,6 +47,7 @@ const LandingPage = () => {
 
   return (
     // JSX
+    <>
     <div className="flex flex-col min-h-screen relative">
       <NavBar />
       <div className="flex-1 grid grid-cols-1 md:grid-cols-12 relative">
@@ -83,7 +85,10 @@ const LandingPage = () => {
           </p>
         </div>
       </div>
+
     </div>
+    <Footer />
+    </>
   );
 };
 

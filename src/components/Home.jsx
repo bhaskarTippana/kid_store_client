@@ -7,7 +7,7 @@ const Home = () => {
   const [categories, setCateories] = useState([]);
 
   const getData = async () => {
-    const res = await axios.get("http://localhost:5500/kids-store/categories");
+    const res = await axios.get("https://kids-store-api.onrender.com/kids-store/categories");
     setCateories(res.data);
   };
 

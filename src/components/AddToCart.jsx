@@ -73,14 +73,14 @@ const AddToCart = () => {
       <NavBar />
       {cart.length > 0 ? (
         <div className="grid grid-cols-12 m-3 rounded-xl border relative">
-          <h1 className="pt-5 px-5 text-3xl font-semibold col-span-12">
+          <h1 className="pt-5 text-center md:px-5 text-xl md:text-3xl font-semibold col-span-12 md:text-start">
             Shopping Cart!
           </h1>
           {cart.length !== 0 &&
             cart.map((e, _) => {
               return (
                 <div
-                  className="col-span-8 m-3 rounded-xl border bg-gray-100"
+                  className="col-span-12  lg:col-span-8 m-3 rounded-xl border bg-gray-100"
                   key={_}
                 >
                   <CartCard
@@ -91,24 +91,25 @@ const AddToCart = () => {
                 </div>
               );
             })}
-          <div className="col-span-4 m-3 sticky w-full bottom-0 right-5">
+          <div className="col-span-12 lg:col-span-4 m-3 lg:sticky bottom-0">
             <div className="h-80 bg-gray-100 w-full rounded-xl border p-5 grid">
-              <h1 className="text-2xl">Order Summary</h1>
+              <h1 className="text-xl md:text-2xl font-semibold text-center">Order Summary</h1>
               <h1 className="border-b-2 pt-1 ">
-                Products Price :
+               <span className="font-bold">Products Price :</span>
                 <span className="line-through"> $ {actualCost}</span>
               </h1>
+              <h1 className="border-b-2 pt-1"><span className="font-bold">Discount Price : </span>$ {premium}</h1>
               <h1 className="border-b-2 pt-1">
-                Discount Price : $ {premium}
-                <span className="pl-10">
-                  Saved Money : $ {actualCost - premium}
-                </span>
+               <span className="font-bold">Saved Money :</span> $ {actualCost - premium}
               </h1>
-              <h1 className="border-b-2 pt-1">GST (18%) : $ {gst}</h1>
+              <h1 className="border-b-2 pt-1"><span className="font-bold">GST (18%) :</span> $ {gst}</h1>
               <h1 className="border-b-2 pt-1">
-                Total Price : $ {premium + gst}
+               <span className="font-bold">Total Price : </span>$ {premium + gst}
               </h1>
-              <button className="rounded bg-blue-500 text-white" onClick={handleBuyCart}>
+              <button
+                className="rounded bg-blue-500 text-white"
+                onClick={handleBuyCart}
+              >
                 Checkout Now
               </button>
             </div>

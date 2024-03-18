@@ -13,7 +13,7 @@ const AddToFav = () => {
     try {
       if (token) {
         const res = await axios.post(
-          "http://localhost:5500/cart",
+          "https://kids-store-api.onrender.com/cart",
           {},
           {
             headers: {
@@ -36,7 +36,7 @@ const AddToFav = () => {
     try {
       if (token) {
         let res = await axios.post(
-          "http://localhost:5500/cart",
+          "https://kids-store-api.onrender.com/cart",
           {
             action: "DELETE_WISHLIST",
             product: e,
@@ -61,7 +61,7 @@ const AddToFav = () => {
   return (
     <>
       <NavBar />
-      {listItems.length !== 0 ? (
+      {/* {listItems.length !== 0 ? (
       <div className="p-5">
         <h1>My WishList.....</h1>
         <div className="h-fit w-3/4 mx-auto">
@@ -117,6 +117,48 @@ const AddToFav = () => {
         
         </div>
       </div>
+      ) : (
+        <NoProductPage />
+      )} */}
+      {listItems.length > 0 ? (
+        <div className="m-3 rounded-xl border min-h-screen">
+          <h1 className="md:pt-5 md:px-5 md:text-3xl font-semibold col-span-12 pl-3 pt-3">
+            Shopping Cart!
+          </h1>
+
+          <div className="col-span-12 p-2 m-2">
+            <div className="grid grid-cols-12 text-[0.8rem] md:text-[1rem] place-items-center border-b-[1px] font-bold">
+              <div className="col-span-3">Product</div>
+              <div className="col-span-2">Name</div>
+              <div className="col-span-2">Price</div>
+              <div className="col-span-2">Rating</div>
+              <div className="col-span-3">Remove Item</div>
+            </div>
+            {listItems.map((e, _) => (
+              <div key={_}>
+                <div className="grid grid-cols-12 text-[0.8rem] md:text-[1rem] place-items-center border-b-[1px] py-4">
+                  <div className="col-span-3 h-12 md:h-32 w-full md:w-40 object-contain">
+                    <img className="p-1 w-full h-full" src={e.url} alt="" />
+                  </div>
+                  <div className="col-span-2 text-ellipsis text-wrap overflow-hidden">
+                    {e.name}
+                  </div>
+                  <div className="col-span-2">{e.price}</div>
+                  <div className="col-span-2">{e.rating}</div>
+                  <div className="col-span-3">
+                    {" "}
+                    <p className="hover:bg-red-300 hover:text-white rounded-full h-8 w-8 grid place-items-center">
+                      <i
+                        className="fa-solid fa-trash-can cursor-pointer"
+                        onClick={() => handleRemove(e)}
+                      ></i>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
         <NoProductPage />
       )}
