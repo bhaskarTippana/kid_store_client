@@ -10,50 +10,56 @@ import axios from "axios";
 import SearchInput from "./SearchInput";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import cart from "../Assets/carts.svg";
+import fav from "../Assets/fav.svg";
+import user from "../Assets/user.svg";
+import logout from "../Assets/logout.svg";
+import login from "../Assets/login.svg";
 export const NavBar = () => {
   const [sidebar, setSidebar] = useState(false);
   const [searchBar, setSearchBar] = useState(false);
-  const [cartLength, setCartLength] = useState([]);
-  const [wishlist, setWishList] = useState([]);
   const [focus, setFocus] = useState(false);
   const [searchInfo, setSearchInfo] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const selector = useSelector((e) => e.user);
+  const selector = useSelector((e) => e);
   const [title, setTitle] = useState([]);
+  const [options, setOptions] = useState(false);
   const getTitles = async () => {
-    const res = await axios.get("https://kids-store-api.onrender.com/kids-store/titles");
+    const res = await axios.get(
+      "https://kids-store-api.onrender.com/kids-store/titles"
+    );
     setTitle(res.data);
   };
 
-  const AddedProducts = async () => {
+  const userIn = async () => {
     try {
+      const token = localStorage.getItem("token");
       if (token) {
-        const res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
-          {},
-          {
-            headers: {
-              token,
-            },
-          }
-        );
+        const res = await axios.get("http://localhost:5500/users", {
+          headers: { token: token },
+        });
         dispatch({ type: "USER_DATA", payload: res.data });
-      } else {
-        navigate("/login");
       }
     } catch (error) {}
   };
 
-
   useEffect(() => {
     getTitles();
-   AddedProducts();
+    // userIn();
   }, []);
 
   const handleOpenCart = () => {
     navigate("/cartItems");
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.reload();
+  };
+  console.log(selector.isLogin);
+  console.log(selector.user);
+
   return (
     <>
       {searchBar ? (
@@ -105,34 +111,89 @@ export const NavBar = () => {
                 onClick={() => setSearchBar(!searchBar)}
               />
             </div>
-            {selector.cart.length > 0 && (
+            {selector.isLogin && selector?.user?.cart?.length > 0 && (
               <div
                 className="col-span-4 cursor-pointer"
                 onClick={handleOpenCart}
               >
                 <div className="relative">
-                  <i className="fa-solid fa-cart-shopping text-3xl"></i>
+                  <img src={cart} alt="Cart" />
                   <div className="h-5 w-5 rounded-full bg-lime-400 grid place-items-center absolute -top-3 -right-3">
-                    <span className=" text-white text-[0.8em] font-bold">
-                      {selector.cart.length}
+                    <span className="text-white text-[0.8em] font-bold">
+                      {selector.user.cart.length}
                     </span>
                   </div>
                 </div>
               </div>
             )}
-           {selector.wishlist.length>0 && <span onClick={() => navigate("/wishlist")}>C</span>}
-            <div className="col-span-4">
+
+            {selector.isLogin && selector?.user?.wishlist?.length > 0 && (
+              <div>
+                <span
+                  onClick={() => navigate("/wishlist")}
+                  className="cursor-pointer"
+                >
+                  <img src={fav} alt="Wishlist" />
+                </span>
+              </div>
+            )}
+
+            {/* <div className="col-span-4 relative">
               <button
                 className="text-xl h-9 w-9 rounded-full bg-lime-500 grid place-items-center"
-                onClick={() => navigate("/login")}
+                // onClick={() => navigate("/login")}
+                onMouseEnter={() => setList(true)}
+                onMouseLeave={() => setList(false)}
               >
-                S
+                {selector.firstName
+                  ? selector.firstName.slice(0, 1).toUpperCase()
+                  : "@"}
               </button>
+              {list && (
+                <ul className="absolute top-10 z-50 w-fit h-fit bg-black rounded-lg right-3 text-center p-3 text-xl">
+                  <li>Profile</li>
+                  <li>Logout</li>
+                  <li>Login</li>
+                </ul>
+              )}
+            </div> */}
+            <div className="col-span-4 relative">
+              <button
+                className="text-xl h-9 w-9 rounded-full bg-lime-500 grid place-items-center hover:bg-lime-600 transition duration-300"
+                onClick={() => setOptions(!options)}
+              >
+                {selector.user.firstName
+                  ? selector.user.firstName.slice(0, 1).toUpperCase()
+                  : "@"}
+              </button>
+              {options && (
+                <ul className="absolute top-7 z-50 grid align-middle m-3 w-32 gap-y-3  p-3  bg-black rounded-lg right-2 text-xl text-white shadow-lg">
+                  <li
+                    className="hover:bg-gray-700 cursor-pointer rounded flex py-2  align-middle hover:border"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <img src={user} alt="" className="pr-2" /> <p>Profile</p>
+                  </li>
+                  <li
+                    className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
+                    onClick={() => handleLogout()}
+                  >
+                    <img src={logout} alt="" className="pr-2" /> <p>Logout</p>
+                  </li>
+
+                  <li
+                    className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
+                    onClick={() => navigate("/login")}
+                  >
+                    <img src={login} alt="" className="pr-2" /> <p>Login</p>
+                  </li>
+                </ul>
+              )}
             </div>
           </div>
         </div>
       )}
-
+      {/* 
       {focus && (
         <div className="col-span-12 grid grid-cols-12 items-center justify-center bg-[#dddddd] absolute z-40 w-screen h-full">
           {title.length !== 0 &&
@@ -174,7 +235,7 @@ export const NavBar = () => {
               );
             })}
         </div>
-      )}
+      )} */}
     </>
   );
 };

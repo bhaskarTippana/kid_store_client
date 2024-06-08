@@ -11,12 +11,6 @@ import Register from "./Register";
 const LandingPage = () => {
   let dispatch = useDispatch();
   let is = useSelector((e) => e.user);
-  const [title, setTitle] = useState([]);
-
-  const getTitles = async () => {
-    const res = await axios.get("http://localhost:5500/kids-store/titles");
-    setTitle(res.data);
-  };
 
   async function getAuth() {
     let token = localStorage.getItem("token");
@@ -41,12 +35,12 @@ const LandingPage = () => {
   }
 
   useEffect(() => {
-    getTitles();
+    // getTitles();
     getAuth();
   }, []);
 
   return (
-    // JSX
+
     <>
     <div className="flex flex-col min-h-screen relative">
       <NavBar />

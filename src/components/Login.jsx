@@ -1,20 +1,22 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import Loader from "./Loader";
 const Login = () => {
+  const [err, setErr] = useState("");
+  const [load,setLoad] = useState(false);
   const {
     register,
     formState: { errors },
     handleSubmit,
     watch,
   } = useForm();
-  const username = watch("username"); // Watching the "username" field
+  const username = watch("username");
   const onSubmit = async (data) => {
     try {
-      // Determine whether to use "email" or "firstName" based on username
       const key = username && username.includes("@") ? "email" : "firstName";
-      // Send the data to the backend
+      setLoad(true);
       const response = await axios.post(
         "https://kids-store-api.onrender.com/login",
         { [key]: data.username, password: data.password },
@@ -24,13 +26,13 @@ const Login = () => {
           },
         }
       );
-      localStorage.setItem("token",response.data.token);
-      window.location.href="/";
-      // localStorage.setItem("user",response.data.userId);
-      // Handle successful login, such as redirecting the user
+      localStorage.setItem("token", response.data.token);
+      window.location.href = "/";
     } catch (error) {
-      console.error("Error:", error.response.data);
-      // Handle login error, such as displaying an error message to the user
+      setErr(error.response.data.message);
+      setLoad(false);
+    }finally{
+        setLoad(false);
     }
   };
   return (
@@ -51,6 +53,7 @@ const Login = () => {
               type="text"
               id="username"
               {...register("username", { required: true })}
+              onFocus={()=>setErr("")}
               className="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
             {errors.username && (
@@ -69,6 +72,7 @@ const Login = () => {
             <input
               type="password"
               id="password"
+              onFocus={()=>setErr("")}
               {...register("password", { required: true })}
               className="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
@@ -83,6 +87,9 @@ const Login = () => {
             >
               Login
             </button>
+            <div className="flex align-middle justify-center p-3">
+              <p className="text-red-700">{err}</p>
+            </div>
           </div>
         </form>
         <div className="mt-4 text-center">
@@ -93,6 +100,7 @@ const Login = () => {
             </a>
           </p>
         </div>
+        <div className="flex align-middle justify-center p-3">{load&&<Loader/>}</div>
       </div>
     </div>
   );

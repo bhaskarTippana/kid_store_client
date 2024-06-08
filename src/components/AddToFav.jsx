@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
+import deleted from "../Assets/delete.svg";
 import { NavBar } from "./NavBar";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +22,7 @@ const AddToFav = () => {
             },
           }
         );
-        dispatch({ type: "USER_DATA", payload: res.data });
+        dispatch({ type: "ADD_TO_WISHLIST", payload: res.data });
       } else {
         navigate("/login");
       }
@@ -48,7 +49,8 @@ const AddToFav = () => {
           }
         );
         if (res.status === 200) {
-          dispatch({ type: "USER_DATA", payload: res.data });
+          console.log(res.data);
+          dispatch({ type: "DELETE_FROM_WISHLIST", payload: e });
         }
       } else {
         navigate("/login");
@@ -61,65 +63,6 @@ const AddToFav = () => {
   return (
     <>
       <NavBar />
-      {/* {listItems.length !== 0 ? (
-      <div className="p-5">
-        <h1>My WishList.....</h1>
-        <div className="h-fit w-3/4 mx-auto">
-        
-            {listItems.map((e, _) => {
-              return (
-                <div key={_} className="w-full border m-5 grid grid-cols-12">
-                  <div className="col-span-12 h-full p-2 grid grid-cols-12 border-b-2">
-                    <div className="col-span-4 flex items-center justify-center">
-                      Product
-                    </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      Product Name
-                    </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      Product Price
-                    </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      Product Rating
-                    </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      Remove Item
-                    </div>
-                  </div>
-                  <div className="col-span-12 h-56 grid grid-cols-12 p-3">
-                    <div
-                      className="col-span-4 flex items-center justify-center h-full"
-                      style={{
-                        backgroundImage: `url(${e.url})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }}
-                    ></div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      {e.name}
-                    </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      {e.price}
-                    </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                      {e.rating}
-                    </div>
-                    <div
-                      className="col-span-2 flex items-center justify-center"
-                      onClick={() => handleRemove(e)}
-                    >
-                      <i className="fa-solid fa-trash-can"></i>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-        
-        </div>
-      </div>
-      ) : (
-        <NoProductPage />
-      )} */}
       {listItems.length > 0 ? (
         <div className="m-3 rounded-xl border min-h-screen">
           <h1 className="md:pt-5 md:px-5 md:text-3xl font-semibold col-span-12 pl-3 pt-3">
@@ -147,11 +90,10 @@ const AddToFav = () => {
                   <div className="col-span-2">{e.rating}</div>
                   <div className="col-span-3">
                     {" "}
-                    <p className="hover:bg-red-300 hover:text-white rounded-full h-8 w-8 grid place-items-center">
-                      <i
-                        className="fa-solid fa-trash-can cursor-pointer"
-                        onClick={() => handleRemove(e)}
-                      ></i>
+                    <p className="cursor-pointer rounded-full h-8 w-8 grid place-items-center">
+                      <span onClick={() => handleRemove(e)}>
+                        <img src={deleted} alt="" />
+                      </span>
                     </p>
                   </div>
                 </div>

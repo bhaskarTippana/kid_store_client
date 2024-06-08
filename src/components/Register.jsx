@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
-import React, {useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-const Register = ({setModal}) => {
+import Loader from "./Loader";
+const Register = () => {
   const navigate = useNavigate();
   const {
     register,
@@ -15,15 +16,11 @@ const Register = ({setModal}) => {
   } = useForm();
 
   const [registrationError, setRegistrationError] = useState(null);
-
-  // const getUser =async ()=>{
-  //   const res = await axios.get("http://localhost:5500/users");
-  //   console.log(res);
-  // }
-
+  const [load, setLoad] = useState(false);
 
   const onSubmit = async (data) => {
     try {
+      setLoad(true);
       const response = await axios.post(
         "https://kids-store-api.onrender.com/register",
         data,
@@ -33,14 +30,15 @@ const Register = ({setModal}) => {
           },
         }
       );
-      // localStorage.setItem("user",response.data.user._id);
-      navigate("/login")
-      setModal(true);
+      navigate("/login");
     } catch (error) {
       if (error.response.status === 400) {
+        setLoad(false);
         setRegistrationError("User already exists.");
-        return; // Exit the function early if user already exists
+        return;
       }
+    } finally {
+      setLoad(false);
     }
   };
 
@@ -51,9 +49,7 @@ const Register = ({setModal}) => {
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Register
         </h2>
-        {registrationError && (
-          <div className="mb-4 text-red-500 text-sm">{registrationError}</div>
-        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="flex flex-wrap -mx-3 mb-4">
             <div className="w-full sm:w-1/2 px-3 mb-4 sm:mb-0">
@@ -64,6 +60,7 @@ const Register = ({setModal}) => {
                 First Name
               </label>
               <input
+                onFocus={() => setRegistrationError(null)}
                 type="text"
                 id="firstName"
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -83,6 +80,7 @@ const Register = ({setModal}) => {
                 Last Name
               </label>
               <input
+                onFocus={() => setRegistrationError(null)}
                 type="text"
                 id="lastName"
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -103,6 +101,7 @@ const Register = ({setModal}) => {
               Email Address
             </label>
             <input
+              onFocus={() => setRegistrationError(null)}
               type="email"
               id="email"
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -123,6 +122,7 @@ const Register = ({setModal}) => {
                 Password
               </label>
               <input
+                onFocus={() => setRegistrationError(null)}
                 type="password"
                 id="password"
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -142,6 +142,7 @@ const Register = ({setModal}) => {
                 Confirm Password
               </label>
               <input
+                onFocus={() => setRegistrationError(null)}
                 type="password"
                 id="confirmPassword"
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -167,6 +168,15 @@ const Register = ({setModal}) => {
             </button>
           </div>
         </form>
+        <div className="flex align-middle justify-center p-3">
+          {" "}
+          {registrationError && (
+            <p className="text-red-500 text-sm">{registrationError}</p>
+          )}
+        </div>
+        <div className="flex align-middle justify-center p-3">
+          {load && <Loader />}
+        </div>
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
@@ -177,12 +187,6 @@ const Register = ({setModal}) => {
               Sign in
             </button>
           </p>
-        </div>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">Or continue with:</p>
-          <button className="mt-2 w-full bg-red-500 text-white p-3 rounded-md font-semibold hover:bg-red-600 focus:outline-none focus:bg-red-600">
-            Continue with Google
-          </button>
         </div>
       </div>
     </div>

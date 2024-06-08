@@ -15,27 +15,35 @@ const AddToCart = () => {
   const [premium, setPremium] = useState(0);
   const [actualCost, setActualCost] = useState(0);
   const selector = useSelector((e) => e.user);
+  console.log(selector.cart);
 
   const cart = selector.cart;
 
-  const AddedProducts = async () => {
-    try {
-      if (token) {
-        const res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
-          {},
-          {
-            headers: {
-              token,
-            },
-          }
-        );
-        dispatch({ type: "USER_DATA", payload: res.data });
-      } else {
-        navigate("/login");
-      }
-    } catch (error) {}
-  };
+
+
+
+
+  // const AddedProducts = async () => {
+  //   try {
+  //     if (token) {
+  //       const res = await axios.post(
+  //         "http://localhost:5500/cart",
+  //         {action:"ADD_CART"},
+  //         {
+  //           headers: {
+  //             token,
+  //           },
+  //         }
+  //       );
+  //       if (res.status === 200) {
+  //         console.log(res.data.cart, "res.data");
+  //         dispatch({ type: "ADD_TO_CART", payload: res.data.cart });
+  //       }
+  //     } else {
+  //       navigate("/login");
+  //     }
+  //   } catch (error) {}
+  // };
 
   const handleBuyCart = async () => {
     try {
@@ -51,9 +59,9 @@ const AddToCart = () => {
             },
           }
         );
-        console.log(res);
+        console.log(res.data);
         if (res.status === 200) {
-          dispatch({ type: "USER_DATA", payload: res.data });
+          dispatch({ type: "ADD_TO_CART", payload: res.data });
           navigate("/checkout");
         }
       }
@@ -64,9 +72,9 @@ const AddToCart = () => {
 
   const gst = Math.round(premium * 0.18);
 
-  useEffect(() => {
-    AddedProducts();
-  }, []);
+  // useEffect(() => {
+  //   AddedProducts();
+  // }, []);
 
   return (
     <>
@@ -76,35 +84,43 @@ const AddToCart = () => {
           <h1 className="pt-5 text-center md:px-5 text-xl md:text-3xl font-semibold col-span-12 md:text-start">
             Shopping Cart!
           </h1>
-          {cart.length !== 0 &&
-            cart.map((e, _) => {
-              return (
-                <div
-                  className="col-span-12  lg:col-span-8 m-3 rounded-xl border bg-gray-100"
-                  key={_}
-                >
-                  <CartCard
-                    e={e}
-                    setActualCost={setActualCost}
-                    setPremium={setPremium}
-                  />
-                </div>
-              );
-            })}
+          {cart.map((item, index) => {
+            return (
+              <div
+                className="col-span-12 lg:col-span-8 m-3 rounded-xl border bg-gray-100"
+                key={item.id || index}
+              >
+                <CartCard
+                  e={item}
+                  setActualCost={setActualCost}
+                  setPremium={setPremium}
+                />
+              </div>
+            );
+          })}
+
           <div className="col-span-12 lg:col-span-4 m-3 lg:sticky bottom-0">
             <div className="h-80 bg-gray-100 w-full rounded-xl border p-5 grid">
-              <h1 className="text-xl md:text-2xl font-semibold text-center">Order Summary</h1>
+              <h1 className="text-xl md:text-2xl font-semibold text-center">
+                Order Summary
+              </h1>
               <h1 className="border-b-2 pt-1 ">
-               <span className="font-bold">Products Price :</span>
+                <span className="font-bold">Products Price :</span>
                 <span className="line-through"> $ {actualCost}</span>
               </h1>
-              <h1 className="border-b-2 pt-1"><span className="font-bold">Discount Price : </span>$ {premium}</h1>
               <h1 className="border-b-2 pt-1">
-               <span className="font-bold">Saved Money :</span> $ {actualCost - premium}
+                <span className="font-bold">Discount Price : </span>$ {premium}
               </h1>
-              <h1 className="border-b-2 pt-1"><span className="font-bold">GST (18%) :</span> $ {gst}</h1>
               <h1 className="border-b-2 pt-1">
-               <span className="font-bold">Total Price : </span>$ {premium + gst}
+                <span className="font-bold">Saved Money :</span> ${" "}
+                {actualCost - premium}
+              </h1>
+              <h1 className="border-b-2 pt-1">
+                <span className="font-bold">GST (18%) :</span> $ {gst}
+              </h1>
+              <h1 className="border-b-2 pt-1">
+                <span className="font-bold">Total Price : </span>${" "}
+                {premium + gst}
               </h1>
               <button
                 className="rounded bg-blue-500 text-white"

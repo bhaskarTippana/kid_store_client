@@ -6,6 +6,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { NavBar } from "./NavBar";
 import { useDispatch, useSelector } from "react-redux";
+import Loader from "./Loader";
+import carts from "../Assets/carts.svg";
 function StarRating({ rating }) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0 && rating - fullStars > 0;
@@ -46,6 +48,7 @@ function StarRating({ rating }) {
 }
 
 const Categories = () => {
+  const [load, setLoad] = useState(false);
   let token = localStorage.getItem("token");
   const dispatch = useDispatch();
   const selector = useSelector((e) => e.myProducts);
@@ -55,17 +58,25 @@ const Categories = () => {
     Array.from({ length: selector.length }, () => false)
   );
   const getCategories = async () => {
-    const res = await axios.get(
-      `https://kids-store-api.onrender.com/kids-store/category/${category}`
-    );
-    dispatch({ type: "MY_PRODUCTS", payload: res.data });
+    try {
+      setLoad(true);
+      const res = await axios.get(
+        `https://kids-store-api.onrender.com/kids-store/category/${category}`
+      );
+      dispatch({ type: "MY_PRODUCTS", payload: res.data });
+    } catch (error) {
+      setLoad(false);
+    } finally {
+      setLoad(false);
+    }
   };
 
   const addToCartHandler = async (e) => {
     try {
+      setLoad(true);
       if (token) {
         let res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
+          "http://localhost:5500/cart",
           {
             action: "ADD_CART",
             product: e,
@@ -77,13 +88,22 @@ const Categories = () => {
           }
         );
         if (res.status === 200) {
-          dispatch({ type: "USER_DATA", payload: res.data });
+          console.log(res.data.cart,'ress');
+          dispatch({
+            type: "ADD_TO_CART",
+            payload: res.data.cart,
+          });
+
+          setLoad(false);
         }
       } else {
         navigate("/login");
       }
     } catch (error) {
       console.error("Error:", error);
+      setLoad(false);
+    } finally {
+      setLoad(false);
     }
   };
 
@@ -93,13 +113,14 @@ const Categories = () => {
 
   const handleWishList = async (e, heart, _) => {
     try {
+      setLoad(true);
       if (token) {
         for (let index = 0; index < selector.length; index++) {
           if (index === _) {
             setWishList((prevWishlist) => {
-              const updatedWishlist = [...prevWishlist]; // Make a copy of the original array
-              updatedWishlist[_] = heart === "add"; // Set the value at index _ based on the condition
-              return updatedWishlist; // Return the updated array
+              const updatedWishlist = [...prevWishlist];
+              updatedWishlist[_] = heart === "add";
+              return updatedWishlist;
             });
           }
         }
@@ -116,76 +137,26 @@ const Categories = () => {
           }
         );
         if (res.status === 200) {
-          dispatch({ type: "USER_DATA", payload: res.data });
+          console.log(res.data.wishlist, ";;;");
+          dispatch({ type: "ADD_TO_WISHLIST", payload: res.data.wishlist });
         }
       } else {
         navigate("/login");
       }
     } catch (error) {
+      setLoad(false);
       console.log(error);
+    } finally {
+      setLoad(false);
     }
   };
-
-  // const handleCart = () => {
-  //   setCart((prev) => !prev);
-  // };
 
   return (
     <>
       <NavBar />
-      {/* <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 bg-[#176b8714] place-items-center p-2 relative">
-        {selector.length !== 0 &&
-          selector.map((e, _) => {
-            return (
-              <div
-                key={_}
-                className="p-2 text-white  h-60 w-44 md:w-52 md:h-60 rounded-xl md:mb-12 lg:h-[22rem] lg:w-[22rem]"
-              >
-                <div
-                  className="h-3/4"
-                >
-                  <img
-                    className="w-full h-full rounded-t-xl"
-                    src={e.url}
-                    alt=""
-                    onClick={() => navigate(`/product/${e._id}`)}
-                  />
-                </div>
-                <div className=" h-1/3 rounded-b-xl p-2 bg-[#176B87]">
-                  <p className="whitespace-nowrap overflow-hidden overflow-ellipsis">
-                    {e.name}
-                  </p>
-                  <div className="flex w-full justify-between p-1">
-                    <StarRating rating={e.rating} />
-                    <p className="mx-auto border w-10 rounded-md text-center bg-blue-100 text-blue-800">
-                      {e.rating}
-                    </p>
-                    <p>{e.price}</p>
-                  </div>
-                  <div className="flex w-full justify-between">
-                    <button
-                      className="p-1 border rounded-md text-center"
-                      onClick={() => addToCartHandler(e)}
-                    >
-                      Add To Cart <i className="fa-solid fa-cart-shopping"></i>
-                    </button>
-                    <button>
-                      {wishlist[_] ? (
-                        <span onClick={() => handleWishList(e, "del", _)}>
-                          ❤️
-                        </span>
-                      ) : (
-                        <span onClick={() => handleWishList(e, "add", _)}>
-                          🤍
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-      </div> */}
+      <div className="flex align-middle justify-center">
+        {load && <Loader />}
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 bg-[#176b8714] place-items-center p-2 relative">
         {selector.length !== 0 &&
           selector.map((e, index) => {
@@ -221,10 +192,11 @@ const Categories = () => {
                 </div>
                 <div className="h-1/4 flex justify-between items-center p-2 bg-[#176B87] rounded-b-xl">
                   <button
-                    className="px-3 py-1 border rounded-md text-white bg-blue-500 hover:bg-blue-600 transition duration-300 ease-in-out"
+                    className="px-3 py-1 border rounded-md text-white bg-yellow-600 hover:bg-yellow-400 transition duration-300 ease-in-out"
                     onClick={() => addToCartHandler(e)}
                   >
-                    Add To Cart <i className="fa-solid fa-cart-shopping"></i>
+                    Add To Cart
+                    {/* <img src={carts} alt="" /> */}
                   </button>
                   <button
                     className="text-xl"

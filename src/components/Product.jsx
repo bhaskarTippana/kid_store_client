@@ -4,10 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { NavBar } from "./NavBar";
+import { useDispatch } from "react-redux";
 
 const Product = () => {
   const params = useParams();
   const navigate = useNavigate();
+  const dispatch  = useDispatch();
   let token = localStorage.getItem("token");
   const [specificProduct, setSpecificProduct] = useState("");
 
@@ -16,6 +18,7 @@ const Product = () => {
       `https://kids-store-api.onrender.com/kids-store/products/${params.id}`
     );
     setSpecificProduct(res.data);
+    console.log(res.data);
   };
 
   useEffect(() => {
@@ -23,11 +26,23 @@ const Product = () => {
     //  console.log(params.id);
   }, []);
 
-  const handleClick = () => {
-    if (token) {
-      navigate("/summary");
-    } else {
-      navigate("/login");
+  const handleClick = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:5500/buyCart",
+        { action: "SINGLE_PRODUCT_ADD", product: specificProduct },
+        { headers: { token: token } }
+      );
+      console.log(res.data);
+      if(res.status === 200){
+        dispatch({type:"SINGLE_PRODUCT_ADD",payload:res.data.buyCart});
+        navigate('/summary');
+      }else{
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error(error);
+      
     }
   };
 

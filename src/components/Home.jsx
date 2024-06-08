@@ -3,12 +3,23 @@ import React, { useEffect, useState } from "react";
 import { NavBar } from "./NavBar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 const Home = () => {
   const [categories, setCateories] = useState([]);
+  const [load, setLoad] = useState(false);
 
   const getData = async () => {
-    const res = await axios.get("https://kids-store-api.onrender.com/kids-store/categories");
-    setCateories(res.data);
+    try {
+      setLoad(true);
+      const res = await axios.get(
+        "https://kids-store-api.onrender.com/kids-store/categories"
+      );
+      setCateories(res.data);
+    } catch (error) {
+      setLoad(false);
+    } finally {
+      setLoad(false);
+    }
   };
 
   useEffect(() => {
@@ -27,6 +38,7 @@ const Home = () => {
       <h1 className="text-xl px-5 pt-3 md:text-2xl lg:text-3xl font-bold lg:px-10">
         Shop by Categories
       </h1>
+      <div className="flex align-middle justify-center">{load&&<Loader/>}</div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {categories.length !== 0
           ? categories.map((e, _) => {
