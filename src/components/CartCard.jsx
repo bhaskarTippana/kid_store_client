@@ -7,65 +7,120 @@ import axios from "axios";
 import deleted from "../Assets/delete.svg";
 
 const CartCard = ({ e, setActualCost, setPremium }) => {
-  console.log(e.quantity);
-
-  const [quantity, setQuantity] = useState();
+  const productPrice = Math.ceil(Number(e.price.replace("$", "")));
+  const actualPrice = Math.ceil(Number(e.price.replace("$", "")) * e.quantity);
+  const discountPrice = Math.ceil(
+    Number(actualPrice - (actualPrice * e.discount) / 100)
+  );
 
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    localStorage.setItem(`quantity_${e._id}`, quantity);
-  }, [quantity, e._id]);
 
   useEffect(() => {
-    const updateCosts = () => {
-      const price = Number(e.price.replace("$", ""));
-      const discount = Number(e.discount) / 100;
-      const updatedActualCost = price * quantity;
-      const updatedPremium = Math.round(
-        updatedActualCost - price * discount * quantity
-      );
-      setActualCost(updatedActualCost);
-      setPremium(updatedPremium);
+    setActualCost((prev) => prev + productPrice * e.quantity);
+    setPremium(
+      (prev) =>
+        prev + (productPrice - (productPrice * e.discount) / 100) * e.quantity
+    );
+
+    return () => {
+      setActualCost((prev) => prev - actualPrice);
+      setPremium((prev) => prev - discountPrice);
     };
+  }, []);
 
-    updateCosts();
-  }, [quantity]);
 
-  const deleteProduct = async () => {
+  const addQuantity = async (e) => {
     try {
       if (token) {
         const res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
-          { action: "DELETE_CART", product: e },
-          { headers: { token } }
+          "http://localhost:5500/cart",
+          { action: "INCREMENT_QUANTITY", product: e },
+          { headers: { token: token } }
         );
         if (res.status === 200) {
-          const price = Number(e.price.replace("$", ""));
-          const discount = Number(e.discount) / 100;
-          setActualCost((prev) => prev - price * quantity);
+          console.log(res.data.cart, "///////");
+          dispatch({ type: "INCREASE_PRODUCT", payload: res.data.cart });
+          setActualCost((prev) => prev + productPrice);
           setPremium(
-            (prev) =>
-              prev - Math.round(price * quantity - price * discount * quantity)
+            (prev) => prev + (productPrice - (productPrice * e.discount) / 100)
           );
-          localStorage.removeItem(`quantity_${e._id}`, quantity);
-          dispatch({ type: "DELETE_FROM_CART", payload: e });
-          setQuantity(e.quantity);
         }
-      } else {
+      }
+    } catch (error) {}
+  };
+
+  const decreaseQuantity = async (e) => {
+    try {
+      if (token) {
+        const res = await axios.post(
+          "http://localhost:5500/cart",
+          {
+            action: "DECREMENT_QUANTITY",
+            product: e,
+          },
+          {
+            headers: { token: token },
+          }
+        );
+        if (res.status === 200) {
+          console.log(res.data.cart);
+          dispatch({ type: "DECREASE_PRODUCT", payload: res.data.cart });
+          setActualCost((prev) =>
+            prev > productPrice ? prev - productPrice : prev
+          );
+          setPremium((prev) =>
+            prev > productPrice - (productPrice * e.discount) / 100
+              ? prev - (productPrice - (productPrice * e.discount) / 100)
+              : prev
+          );
+        }
+      }
+    } catch (error) {}
+  };
+
+  const deleteProduct = async () => {
+    try {
+      if (!token) {
         navigate("/login");
+        return;
+      }
+
+      const res = await axios.post(
+        "https://kids-store-api.onrender.com/cart",
+        { action: "DELETE_CART", product: e },
+        { headers: { token } }
+      );
+
+      if (res.status === 200) {
+        setActualCost((prev) => {
+          const newActualCost = prev - totalActualPrice;
+          console.log(newActualCost);
+          return newActualCost;
+        });
+        dispatch({ type: "DELETE_FROM_CART", payload: e });
+
+        const totalActualPrice = Number(e.price.replace("$", "")) * e.quantity;
+        console.log(totalActualPrice, "total");
+
+        const totalDiscountPrice =
+          totalActualPrice - (totalActualPrice * e.discount) / 100;
+        console.log(totalDiscountPrice, "discounted total");
+
+
+        setPremium((prev) => {
+          const newPremium = prev - totalDiscountPrice;
+          console.log(newPremium);
+          return newPremium;
+        });
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
-  const productPrice = Number(e.price.replace("$", "")) * quantity;
-  const productDiscount = Math.ceil(
-    productPrice - (productPrice * e.discount) / 100
-  );
-  const savedPrice = productPrice - productDiscount;
+
 
   return (
     <div className="h-80 bg-white m-3 rounded-xl border grid grid-cols-12">
@@ -79,12 +134,12 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
         </h1>
         <h1>
           <span className="font-bold">Price :</span>
-          <span className="line-through">{e.price}</span>
-          <span className="pl-5">$ {productDiscount}</span>
+          <span className="line-through">{actualPrice}</span>
+          <span className="pl-5">$ {discountPrice}</span>
         </h1>
         <h1>
           <span className="font-bold">Saved :</span>
-          <span className="text-ellipsis">$ {savedPrice}</span>
+          <span className="text-ellipsis">$ {actualPrice - discountPrice}</span>
         </h1>
         <h1>
           <span className="font-bold">Rating :</span>{" "}
@@ -102,8 +157,7 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
           <button
             className="grid place-items-center h-8 w-8 rounded-full border font-bold"
             onClick={() => {
-              e.quantity > 1 &&
-                dispatch({ type: "DECREASE_PRODUCT", payload: e._id });
+              e.quantity > 1 && decreaseQuantity(e);
             }}
           >
             <span>-</span>
@@ -112,7 +166,7 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
           <button
             className="grid place-items-center h-8 w-8 rounded-full border font-bold"
             onClick={() => {
-              dispatch({ type: "INCREASE_PRODUCT", payload: e._id });
+              addQuantity(e);
             }}
           >
             <span>+</span>

@@ -3,9 +3,11 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import Loader from "./Loader";
+import { GoogleLogin } from "@react-oauth/google";
+
 const Login = () => {
   const [err, setErr] = useState("");
-  const [load,setLoad] = useState(false);
+  const [load, setLoad] = useState(false);
   const {
     register,
     formState: { errors },
@@ -13,6 +15,7 @@ const Login = () => {
     watch,
   } = useForm();
   const username = watch("username");
+
   const onSubmit = async (data) => {
     try {
       const key = username && username.includes("@") ? "email" : "firstName";
@@ -29,12 +32,13 @@ const Login = () => {
       localStorage.setItem("token", response.data.token);
       window.location.href = "/";
     } catch (error) {
-      setErr(error.response.data.message);
+      setErr(error.response?.data?.message || "An error occurred. Please try again.");
       setLoad(false);
-    }finally{
-        setLoad(false);
+    } finally {
+      setLoad(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500">
       <div className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-4/12 bg-white p-8 rounded-lg shadow-md animate-fade-in">
@@ -53,7 +57,7 @@ const Login = () => {
               type="text"
               id="username"
               {...register("username", { required: true })}
-              onFocus={()=>setErr("")}
+              onFocus={() => setErr("")}
               className="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
             {errors.username && (
@@ -72,7 +76,7 @@ const Login = () => {
             <input
               type="password"
               id="password"
-              onFocus={()=>setErr("")}
+              onFocus={() => setErr("")}
               {...register("password", { required: true })}
               className="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
@@ -94,16 +98,31 @@ const Login = () => {
         </form>
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
-            Dont have an account?{" "}
+            Don't have an account?{" "}
             <a href="/register" className="text-blue-500 hover:underline">
               Create new account
             </a>
           </p>
         </div>
-        <div className="flex align-middle justify-center p-3">{load&&<Loader/>}</div>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">Or continue with:</p>
+          <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                console.log(credentialResponse);
+              }}
+              onError={() => {
+                console.log("Login Failed");
+              }}
+            />
+        </div>
+        <div className="flex align-middle justify-center p-3">
+          {load && <Loader />}
+        </div>
       </div>
     </div>
   );
 };
 
 export default Login;
+
+

@@ -88,7 +88,7 @@ const Categories = () => {
           }
         );
         if (res.status === 200) {
-          console.log(res.data.cart,'ress');
+          console.log(res.data.cart[0],'ress');
           dispatch({
             type: "ADD_TO_CART",
             payload: res.data.cart,

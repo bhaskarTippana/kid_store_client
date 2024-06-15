@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 const Product = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const dispatch  = useDispatch();
+  const dispatch = useDispatch();
   let token = localStorage.getItem("token");
   const [specificProduct, setSpecificProduct] = useState("");
 
@@ -25,7 +25,6 @@ const Product = () => {
     getSpec();
     //  console.log(params.id);
   }, []);
-
   const handleClick = async () => {
     try {
       const res = await axios.post(
@@ -34,15 +33,15 @@ const Product = () => {
         { headers: { token: token } }
       );
       console.log(res.data);
-      if(res.status === 200){
-        dispatch({type:"SINGLE_PRODUCT_ADD",payload:res.data.buyCart});
-        navigate('/summary');
-      }else{
-        navigate('/login');
+      if (res.status === 200) {
+        dispatch({ type: "SINGLE_PRODUCT_ADD", payload: res.data.buyCart });
+        dispatch({type:"BUY_CART_PRODUCTS",payload:res.data.buyProductsCart})
+        navigate("/summary");
+      } else {
+        navigate("/login");
       }
     } catch (error) {
       console.error(error);
-      
     }
   };
 

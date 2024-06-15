@@ -1,4 +1,4 @@
-import { legacy_createStore } from "redux";
+import { legacy_createStore as createStore } from "redux";
 
 let initialState = {
   isLogin: false,
@@ -9,6 +9,7 @@ let initialState = {
     wishlist: [],
     cart: [],
     buyCart: [],
+    buyProductsCart:[]
   },
   myProducts: [],
 };
@@ -29,13 +30,19 @@ const rootReducer = (state = initialState, action) => {
       return { ...state, user: { ...payload } };
 
     case "ADD_TO_CART":
-      console.log([...payload]);
+      console.log(payload);
+      console.log(state.user.cart);
+      const combinedCart = [...state.user.cart, ...payload];
+      const uniqueCart = combinedCart.filter(
+        (item, index, self) =>
+          index === self.findIndex((t) => t._id === item._id)
+      );
 
       return {
         ...state,
         user: {
-          ...state.user.cart,
-          cart: [...payload],
+          ...state.user,
+          cart: uniqueCart,
         },
       };
 
@@ -70,43 +77,48 @@ const rootReducer = (state = initialState, action) => {
       };
 
     case "SINGLE_PRODUCT_ADD":
+      console.log(payload);
       return {
         ...state,
         user: {
           ...state.user,
-          buyCart: [...payload],
+          buyCart: payload,
         },
       };
 
     case "INCREASE_PRODUCT":
-      const updatedCart = state.user.cart.map((item) =>
-        item._id === payload ? { ...item, quantity: item.quantity + 1 } : item
-      );
+      console.log(payload);
       return {
         ...state,
         user: {
           ...state.user,
-          cart: updatedCart,
+          cart: [...payload],
         },
       };
 
     case "DECREASE_PRODUCT":
-      const updatedCarts = state.user.cart.map((item) =>
-        item._id === payload ? { ...item, quantity: item.quantity - 1 } : item
-      );
+      console.log(payload);
       return {
         ...state,
         user: {
           ...state.user,
-          cart: updatedCarts,
+          cart: [...payload],
         },
       };
+
+      case "BUY_CART_PRODUCTS":
+        console.log(payload);
+      return {
+        ...state,user:{
+          ...state.user,buyProductsCart:payload
+        }
+      }
 
     default:
       return state;
   }
 };
 
-let store = legacy_createStore(rootReducer);
+let store = createStore(rootReducer);
 
-export default store;
+export { store };

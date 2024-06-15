@@ -10,10 +10,10 @@ import Register from "./components/Register";
 import LandingPage from "./components/LandingPage";
 import AddToCart from "./components/AddToCart";
 import AddToFav from "./components/AddToFav";
-import { Provider } from "react-redux";
-import store from "./Redux/store";
 import CheckoutForm from "./components/CheckoutForm";
 import ProfilePage from "./components/ProfilePage";
+import PaymentSuccess from "./components/PaymentSuccess";
+import PaymentCancel from "./components/PaymentCancel";
 
 function App() {
   return (
@@ -30,6 +30,8 @@ function App() {
         <Route path="/wishlist" element={<AddToFav />} />
         <Route path="/checkout" element={<CheckoutForm />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" component={PaymentCancel} />
       </Routes>
     </BrowserRouter>
   );

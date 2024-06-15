@@ -57,8 +57,6 @@ export const NavBar = () => {
     localStorage.removeItem("token");
     window.location.reload();
   };
-  console.log(selector.isLogin);
-  console.log(selector.user);
 
   return (
     <>
@@ -120,14 +118,14 @@ export const NavBar = () => {
                   <img src={cart} alt="Cart" />
                   <div className="h-5 w-5 rounded-full bg-lime-400 grid place-items-center absolute -top-3 -right-3">
                     <span className="text-white text-[0.8em] font-bold">
-                      {selector.user.cart.length}
+                      {selector?.user?.cart?.length}
                     </span>
                   </div>
                 </div>
               </div>
             )}
 
-            {selector.isLogin && selector?.user?.wishlist?.length > 0 && (
+            {selector?.isLogin && selector?.user?.wishlist?.length > 0 && (
               <div>
                 <span
                   onClick={() => navigate("/wishlist")}
@@ -162,8 +160,8 @@ export const NavBar = () => {
                 className="text-xl h-9 w-9 rounded-full bg-lime-500 grid place-items-center hover:bg-lime-600 transition duration-300"
                 onClick={() => setOptions(!options)}
               >
-                {selector.user.firstName
-                  ? selector.user.firstName.slice(0, 1).toUpperCase()
+                {selector?.user?.firstName
+                  ? selector?.user?.firstName.slice(0, 1).toUpperCase()
                   : "@"}
               </button>
               {options && (

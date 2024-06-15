@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import { useDispatch } from "react-redux";
 import App from "./App.jsx";
-import CheckoutForm from "./components/CheckoutForm.jsx";
 import "./index.css";
 import { Provider } from "react-redux";
-import store from "./Redux/store";
+import { store } from "./Redux/store";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const Main = () => {
   const dispatch = useDispatch();
@@ -31,14 +31,17 @@ const Main = () => {
       }
     };
 
-    userIn(); // Call the async function
+    userIn();
   }, [dispatch]);
 
   return <App />;
 };
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+root.render(
+  <GoogleOAuthProvider clientId="25996951861-91hotg0eq52ffadj39v40vr9npabejt1.apps.googleusercontent.com">
   <Provider store={store}>
-    <Main />
+      <Main />
   </Provider>
+  </GoogleOAuthProvider>
 );

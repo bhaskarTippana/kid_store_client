@@ -19,10 +19,6 @@ const AddToCart = () => {
 
   const cart = selector.cart;
 
-
-
-
-
   // const AddedProducts = async () => {
   //   try {
   //     if (token) {
@@ -47,34 +43,40 @@ const AddToCart = () => {
 
   const handleBuyCart = async () => {
     try {
-      if (token) {
-        const res = await axios.post(
-          "https://kids-store-api.onrender.com/buyCart",
-          {
-            action: "MULTI_PRODUCTS",
-          },
-          {
-            headers: {
-              token,
-            },
-          }
-        );
-        console.log(res.data);
-        if (res.status === 200) {
-          dispatch({ type: "ADD_TO_CART", payload: res.data });
-          navigate("/checkout");
-        }
+      if (!token) {
+        throw new Error("No token found. Please log in.");
       }
+      const buyResponse = await axios.post(
+        "https://kids-store-api.onrender.com/buyCart",
+        { action: "MULTI_PRODUCTS" },
+        { headers: { token } }
+      );
+      if (buyResponse.status !== 200) {
+        throw new Error("Failed to buy products. Please try again.");
+      }
+      const emptyCartResponse = await axios.post(
+        "http://localhost:5500/buyCart",
+        { action: "EMPTY_CART" },
+        { headers: { token } }
+      );
+      console.log(emptyCartResponse.data.buyCart);
+      if (emptyCartResponse.status !== 200) {
+        throw new Error("Failed to empty the cart. Please try again.");
+      }
+      dispatch({ type: "BUY_CART_PRODUCTS", payload: buyResponse.data.buyProductsCart });
+      dispatch({ type: "SINGLE_PRODUCT_ADD", payload: emptyCartResponse.data.buyCart });
+      navigate("/checkout");
     } catch (error) {
-      console.error("Error buying cart:", error);
+      console.error("Error buying cart:", error.message || error);
     }
   };
+  
 
-  const gst = Math.round(premium * 0.18);
+  const gst = Math.ceil(premium * 0.18);
 
-  // useEffect(() => {
-  //   AddedProducts();
-  // }, []);
+
+  // alert(premium);
+  // alert(actualCost);
 
   return (
     <>
@@ -106,21 +108,22 @@ const AddToCart = () => {
               </h1>
               <h1 className="border-b-2 pt-1 ">
                 <span className="font-bold">Products Price :</span>
-                <span className="line-through"> $ {actualCost}</span>
+                <span className="line-through"> $ {Math.ceil(actualCost)}</span>
               </h1>
               <h1 className="border-b-2 pt-1">
-                <span className="font-bold">Discount Price : </span>$ {premium}
+                <span className="font-bold">Discount Price : </span>${" "}
+                {Math.ceil(premium)}
               </h1>
               <h1 className="border-b-2 pt-1">
                 <span className="font-bold">Saved Money :</span> ${" "}
-                {actualCost - premium}
+                {Math.ceil(actualCost - premium)}
               </h1>
               <h1 className="border-b-2 pt-1">
                 <span className="font-bold">GST (18%) :</span> $ {gst}
               </h1>
               <h1 className="border-b-2 pt-1">
                 <span className="font-bold">Total Price : </span>${" "}
-                {premium + gst}
+                {Math.ceil(premium + gst)}
               </h1>
               <button
                 className="rounded bg-blue-500 text-white"

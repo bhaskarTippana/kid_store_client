@@ -1,6 +1,9 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import BuyCart from "./buyCart";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
+import edit from "../Assets/edit.svg";
 
 function CheckoutForm() {
   const [cardType, setCardType] = useState("credit");
@@ -9,51 +12,56 @@ function CheckoutForm() {
   const [expirationMonth, setExpirationMonth] = useState("01");
   const [expirationYear, setExpirationYear] = useState("2023");
   const [securityCode, setSecurityCode] = useState("");
-  const [Subtotal,setSubTotal]=useState(0);
+  const [Subtotal, setSubTotal] = useState(0);
 
-
-
-
-  const selector = useSelector((e)=>e.user);
-
-  console.log(selector.buyCart);
-
-  const handleCardTypeChange = (type) => {
-    setCardType(type);
-  };
-
-  const handleNameOnCardChange = (event) => {
-    setNameOnCard(event.target.value);
-  };
-
-  const handleCardNumberChange = (event) => {
-    setCardNumber(event.target.value);
-  };
-
-  const handleExpirationMonthChange = (event) => {
-    setExpirationMonth(event.target.value);
-  };
-
-  const handleExpirationYearChange = (event) => {
-    setExpirationYear(event.target.value);
-  };
-
-  const handleSecurityCodeChange = (event) => {
-    setSecurityCode(event.target.value);
-  };
-
-  const handleSubmit = () => {
-    // Logic for handling form submission
-  };
+  const selector = useSelector((e) => e.user);
 
   const gst = Math.round(Subtotal * 0.18);
+  const total = Subtotal + gst;
+
+  console.log(selector.buyCart);
+  console.log(selector.buyProductsCart);
+
+  const makePayment = async () => {
+    try {
+      const stripe = await loadStripe(
+        "pk_test_51PRpGcGQSPaxSENUQdD3q5QYV4x7SQHDQqM8lqEY9ZNNCHklG6SjNfVy2xLcaPkBwwsfrD6w93LB5Gqj4BvkySPp004Ppa9hV5"
+      );
+
+      const body = {
+        products: selector.buyProductsCart,
+      };
+
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      const res = await axios.post(
+        `http://localhost:5500/checkout-session`,
+        body,
+        {
+          headers,
+        }
+      );
+
+      const session = res.data;
+
+      const result = await stripe.redirectToCheckout({ sessionId: session.id });
+
+      if (result.error) {
+        console.error(result.error.message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="min-w-screen min-h-screen bg-gray-50 py-5">
       <div className="px-5">
         <div className="mb-2">
           <a
-            href='/'
+            href="/"
             className="focus:outline-none hover:underline text-gray-500 text-sm"
           >
             <i className="mdi mdi-arrow-left text-gray-400"></i>Back
@@ -85,7 +93,15 @@ function CheckoutForm() {
         <div className="w-full">
           <div className="-mx-3 md:flex items-start">
             <div className="px-3 md:w-7/12 lg:pr-10">
-             {selector.buyCart.map((e,_)=> <BuyCart key={_}  data={e} setSubTotal={setSubTotal}/>)}
+              {selector.buyProductsCart &&
+                selector.buyProductsCart.map((e, _) => (
+                  <BuyCart key={_} data={e} setSubTotal={setSubTotal} />
+                ))}
+
+              {selector.buyCart &&
+                selector.buyCart.map((e, _) => (
+                  <BuyCart key={_} data={e} setSubTotal={setSubTotal} />
+                ))}
               <div className="mb-6 pb-6 border-b border-gray-200 text-gray-800">
                 <div className="w-full flex mb-3 items-center">
                   <div className="flex-grow">
@@ -110,152 +126,81 @@ function CheckoutForm() {
                     <span className="text-gray-600">Total</span>
                   </div>
                   <div className="pl-3">
-                    <span className="font-semibold">$ {Subtotal+gst}</span>
+                    <span className="font-semibold">$ {total}</span>
                   </div>
                 </div>
               </div>
             </div>
             <div className="px-3 md:w-5/12">
-              <div className="w-full mx-auto rounded-lg bg-white border border-gray-200 p-3 text-gray-800 font-light mb-6">
-                <div className="w-full flex mb-3 items-center">
-                  <div className="w-32">
-                    <span className="text-gray-600 font-semibold">Contact</span>
+              <p className="text-xl">Customer </p>
+              <div className="flex justify-between w-52 items-center p-4">
+                <p className="h-16 w-16 bg-lime-500 rounded-full grid items-center justify-center text-3xl text-white ">
+                  {selector.firstName.slice(0, 1).toUpperCase()}
+                </p>
+                <p>{selector.firstName}</p>
+              </div>
+              <p className="border w-full"></p>
+              <div className="flex justify-center text-gray-800 dark:text-white md:justify-start items-center space-x-4 py-4 border-b border-gray-200 w-full">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5Z"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M3 7L12 13L21 7"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <p className="cursor-pointer text-sm leading-5 ">
+                  {selector.email ? selector.email : "user@email.com"}
+                </p>
+              </div>
+              <div className="flex justify-between xl:h-full items-stretch w-full flex-col mt-2 md:mt-0">
+                <div className="flex justify-center md:justify-start xl:flex-col flex-col md:space-x-6 lg:space-x-8 xl:space-x-0 space-y-4 xl:space-y-12 md:space-y-0 md:flex-row items-center md:items-start">
+                  <div className="w-full flex justify-end">
+                    <button className="border p-2 flex items-center justify-evenly w-20 m-2">
+                      <p>Edit </p>
+                      <p>
+                        <img src={edit} alt="" />
+                      </p>
+                    </button>
                   </div>
-                  <div className="flex-grow pl-3">
-                    <span>Scott Windon</span>
+                  <div className="flex justify-center md:justify-start items-center md:items-start flex-col space-y-4 xl:mt-2">
+                    <p className="text-base dark:text-white font-semibold leading-4 text-center md:text-left text-gray-800">
+                      <p>Shipping Address</p>
+                    </p>
+                    <p className="w-48 lg:w-full dark:text-gray-300 xl:w-48 text-center md:text-left text-sm leading-5 text-gray-600">
+                      180 North King Street, Northhampton MA 1060
+                    </p>
                   </div>
-                </div>
-                <div className="w-full flex items-center">
-                  <div className="w-32">
-                    <span className="text-gray-600 font-semibold">
+
+                  <div className="flex justify-center md:justify-start items-center md:items-start flex-col space-y-4">
+                    <p className="text-base dark:text-white font-semibold leading-4 text-center md:text-left text-gray-800">
                       Billing Address
-                    </span>
-                  </div>
-                  <div className="flex-grow pl-3">
-                    <span>123 George Street, Sydney, NSW 2000 Australia</span>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full mx-auto rounded-lg bg-white border border-gray-200 text-gray-800 font-light mb-6">
-                <div className="w-full p-3 border-b border-gray-200">
-                  <div className="mb-5">
-                    <label
-                      for="type1"
-                      className="flex items-center cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        className="form-radio h-5 w-5 text-indigo-500"
-                        name="type"
-                        id="type1"
-                        checked
-                      />
-                      <img
-                        src="https://leadershipmemphis.org/wp-content/uploads/2020/08/780370.png"
-                        className="h-6 ml-3"
-                      />
-                    </label>
-                  </div>
-                  <div>
-                    <div className="mb-3">
-                      <label className="text-gray-600 font-semibold text-sm mb-2 ml-1">
-                        Name on card
-                      </label>
-                      <div>
-                        <input
-                          className="w-full px-3 py-2 mb-1 border border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors"
-                          placeholder="John Smith"
-                          type="text"
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <label className="text-gray-600 font-semibold text-sm mb-2 ml-1">
-                        Card number
-                      </label>
-                      <div>
-                        <input
-                          className="w-full px-3 py-2 mb-1 border border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors"
-                          placeholder="0000 0000 0000 0000"
-                          type="text"
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-3 -mx-2 flex items-end">
-                      <div className="px-2 w-1/4">
-                        <label className="text-gray-600 font-semibold text-sm mb-2 ml-1">
-                          Expiration date
-                        </label>
-                        <div>
-                          <select className="form-select w-full px-3 py-2 mb-1 border border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer">
-                            <option value="01">01 - January</option>
-                            <option value="02">02 - February</option>
-                            <option value="03">03 - March</option>
-                            <option value="04">04 - April</option>
-                            <option value="05">05 - May</option>
-                            <option value="06">06 - June</option>
-                            <option value="07">07 - July</option>
-                            <option value="08">08 - August</option>
-                            <option value="09">09 - September</option>
-                            <option value="10">10 - October</option>
-                            <option value="11">11 - November</option>
-                            <option value="12">12 - December</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="px-2 w-1/4">
-                        <select className="form-select w-full px-3 py-2 mb-1 border border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer">
-                          <option value="2020">2020</option>
-                          <option value="2021">2021</option>
-                          <option value="2022">2022</option>
-                          <option value="2023">2023</option>
-                          <option value="2024">2024</option>
-                          <option value="2025">2025</option>
-                          <option value="2026">2026</option>
-                          <option value="2027">2027</option>
-                          <option value="2028">2028</option>
-                          <option value="2029">2029</option>
-                        </select>
-                      </div>
-                      <div className="px-2 w-1/4">
-                        <label className="text-gray-600 font-semibold text-sm mb-2 ml-1">
-                          Security code
-                        </label>
-                        <div>
-                          <input
-                            className="w-full px-3 py-2 mb-1 border border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors"
-                            placeholder="000"
-                            type="text"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    </p>
+                    <p className="w-48 lg:w-full dark:text-gray-300 xl:w-48 text-center md:text-left text-sm leading-5 text-gray-600">
+                      180 North King Street, Northhampton MA 1060
+                    </p>
                   </div>
                 </div>
-                <div className="w-full p-3">
-                  <label
-                    for="type2"
-                    className="flex items-center cursor-pointer"
-                  >
-                    <input
-                      type="radio"
-                      className="form-radio h-5 w-5 text-indigo-500"
-                      name="type"
-                      id="type2"
-                    />
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                      width="80"
-                      className="ml-3"
-                    />
-                  </label>
-                </div>
+                <div className="flex w-full justify-center items-center md:justify-start md:items-start"></div>
               </div>
-              <div>
-                <button className="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-2 font-semibold">
-                  <i className="mdi mdi-lock-outline mr-1"></i> PAY NOW
-                </button>
-              </div>
+              <button
+                className="mt-3 block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-2 font-semibold"
+                onClick={makePayment}
+              >
+                <i className="mdi mdi-lock-outline mr-1"></i> PAY NOW
+              </button>
             </div>
           </div>
         </div>

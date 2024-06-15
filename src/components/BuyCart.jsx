@@ -1,40 +1,31 @@
 import React, { useEffect } from "react";
 import axios from "axios";
-import { useDispatch } from "react-redux";
-import deleted from "../Assets/delete.svg"
+import { useDispatch, useSelector } from "react-redux";
+import deleted from "../Assets/delete.svg";
 const BuyCart = ({ data, setSubTotal }) => {
   console.log(data, "nnnn");
   const dispatch = useDispatch();
-
-  const handleRemove = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        "http://localhost:5500/buyCart",
-        { action: "SINGLE_PRODUCT_REMOVE", product: data },
-        { headers: { token: token } }
-      );
-      console.log(res.data);
-      if (res.status === 200) {
-        dispatch({ type: "SINGLE_PRODUCT_ADD", payload: res.data.buyCart });
-        setSubTotal(prev=>prev-  Math.round(
-          Number(data.price.replace("$", "")) -
-            Number(data.discount / 100) * Number(data.price.replace("$", ""))
-        ));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const selector = useSelector((state) => state.user);
+  console.log(selector);
 
   useEffect(() => {
     setSubTotal(
-      (prev) =>
-        prev +
-        Math.round(
-          Number(data.price.replace("$", "")) -
-            Number(data.discount / 100) * Number(data.price.replace("$", ""))
-        )
+      data.quantity
+        ? (prev) =>
+            prev +
+            Math.round(
+              Number(data.price.replace("$", "")) -
+                Number(data.discount / 100) *
+                  Number(data.price.replace("$", ""))
+            ) *
+              data.quantity
+        : (prev) =>
+            prev +
+            Math.round(
+              Number(data.price.replace("$", "")) -
+                Number(data.discount / 100) *
+                  Number(data.price.replace("$", ""))
+            )
     );
   }, []);
 
@@ -54,7 +45,10 @@ const BuyCart = ({ data, setSubTotal }) => {
         <div className="line-through mr-3">
           <span className="font-semibold text-gray-600 text-xl">
             {" "}
-            $ {Math.round(Number(data.price.replace("$", "")))}
+            $
+            {data.quantity
+              ? Math.round(Number(data.price.replace("$", "")) * data.quantity)
+              : Math.round(Number(data.price.replace("$", "")))}
           </span>
           <span className="font-semibold text-gray-600 text-sm">.00</span>
         </div>
@@ -62,15 +56,21 @@ const BuyCart = ({ data, setSubTotal }) => {
           <span className="font-semibold text-gray-600 text-xl">
             {" "}
             ${" "}
-            {Math.round(
-              Number(data.price.replace("$", "")) -
-                Number(data.discount / 100) *
-                  Number(data.price.replace("$", ""))
-            )}
+            {data.quantity
+              ? Math.round(
+                  Number(data.price.replace("$", "")) -
+                    Number(data.discount / 100) *
+                      Number(data.price.replace("$", ""))
+                ) * data.quantity
+              : Math.round(
+                  Number(data.price.replace("$", "")) -
+                    Number(data.discount / 100) *
+                      Number(data.price.replace("$", ""))
+                )}
           </span>
           <span className="font-semibold text-gray-600 text-sm">.00</span>
         </div>
-        <button onClick={()=>handleRemove()} className="text-3xl pl-5"><img src={deleted} alt="" /></button>
+        {/* <button onClick={()=>handleRemove()} className="text-3xl pl-5"><img src={deleted} alt="" /></button> */}
       </div>
     </div>
   );
