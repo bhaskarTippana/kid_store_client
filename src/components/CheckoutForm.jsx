@@ -6,21 +6,33 @@ import axios from "axios";
 import edit from "../Assets/edit.svg";
 
 function CheckoutForm() {
-  const [cardType, setCardType] = useState("credit");
-  const [nameOnCard, setNameOnCard] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expirationMonth, setExpirationMonth] = useState("01");
-  const [expirationYear, setExpirationYear] = useState("2023");
-  const [securityCode, setSecurityCode] = useState("");
   const [Subtotal, setSubTotal] = useState(0);
 
   const selector = useSelector((e) => e.user);
 
-  const gst = Math.round(Subtotal * 0.18);
-  const total = Subtotal + gst;
+    useEffect(() => {
+      const calculateSubtotal = () => {
+        let subtotal = 0;
+        if (selector.buyProductsCart) {
+          selector.buyProductsCart.forEach((item) => {
+            subtotal += parseFloat(item.price.replace("$", "")) * item.quantity;
+          });
+        } else if (selector.buyCart) {
+          selector.buyCart.forEach((item) => {
+            subtotal += parseFloat(item.price.replace("$", "")) * item.quantity;
+          });
+        }
+        setSubTotal(subtotal);
+      };
 
-  console.log(selector.buyCart);
-  console.log(selector.buyProductsCart);
+      calculateSubtotal();
+    }, [selector.buyProductsCart, selector.buyCart]);
+
+    const gst = Math.round(Subtotal * 0.18);
+    const total = Subtotal + gst;
+
+    console.log(selector.buyCart);
+    console.log(selector.buyProductsCart);
 
   const makePayment = async () => {
     try {
@@ -28,16 +40,26 @@ function CheckoutForm() {
         "pk_test_51PRpGcGQSPaxSENUQdD3q5QYV4x7SQHDQqM8lqEY9ZNNCHklG6SjNfVy2xLcaPkBwwsfrD6w93LB5Gqj4BvkySPp004Ppa9hV5"
       );
 
-      const body = {
-        products: selector.buyProductsCart,
-      };
+  const body = {
+    // products:selector.buyCart || selector.buyProductsCart
+  };
+
+  if (selector.buyProductsCart.length >0) {
+    body.products = selector.buyProductsCart;
+  } else {
+    console.log(selector);
+    body.products = selector.buyCart;
+  }
+
+
+         console.log("Making payment with products:", body.products);
 
       const headers = {
         "Content-Type": "application/json",
       };
 
       const res = await axios.post(
-        `http://localhost:5500/checkout-session`,
+        'http://localhost:5500/checkout-session',
         body,
         {
           headers,
