@@ -8,6 +8,13 @@ import { NavBar } from "./NavBar";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
 import carts from "../Assets/carts.svg";
+import Footer from "./Footer";
+import {BASE_URL,LOCAL_URL } from "../config";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 function StarRating({ rating }) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0 && rating - fullStars > 0;
@@ -48,7 +55,7 @@ function StarRating({ rating }) {
 }
 
 const Categories = () => {
-  const [load, setLoad] = useState(false);
+  // const [load, setLoad] = useState(false);
   let token = localStorage.getItem("token");
   const dispatch = useDispatch();
   const selector = useSelector((e) => e.myProducts);
@@ -59,24 +66,24 @@ const Categories = () => {
   );
   const getCategories = async () => {
     try {
-      setLoad(true);
+      // setLoad(true);
       const res = await axios.get(
-        `https://kids-store-api.onrender.com/kids-store/category/${category}`
+        `${LOCAL_URL}kids-store/category/${category}`
       );
       dispatch({ type: "MY_PRODUCTS", payload: res.data });
     } catch (error) {
-      setLoad(false);
+      // setLoad(false);
     } finally {
-      setLoad(false);
+      // setLoad(false);
     }
   };
 
   const addToCartHandler = async (e) => {
     try {
-      setLoad(true);
+      // setLoad(true);
       if (token) {
         let res = await axios.post(
-          "http://localhost:5500/cart",
+          `${LOCAL_URL}cart`,
           {
             action: "ADD_CART",
             product: e,
@@ -88,22 +95,24 @@ const Categories = () => {
           }
         );
         if (res.status === 200) {
-          console.log(res.data.cart[0],'ress');
+        
+          toast.success("Great choice! It's in your cart.");
           dispatch({
             type: "ADD_TO_CART",
             payload: res.data.cart,
           });
 
-          setLoad(false);
+          // setLoad(false);
         }
       } else {
         navigate("/login");
       }
     } catch (error) {
+      toast.error("Something Went Wrong !");
       console.error("Error:", error);
-      setLoad(false);
+      // setLoad(false);
     } finally {
-      setLoad(false);
+      // setLoad(false);
     }
   };
 
@@ -113,7 +122,7 @@ const Categories = () => {
 
   const handleWishList = async (e, heart, _) => {
     try {
-      setLoad(true);
+      // setLoad(true);
       if (token) {
         for (let index = 0; index < selector.length; index++) {
           if (index === _) {
@@ -125,7 +134,7 @@ const Categories = () => {
           }
         }
         let res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
+          `${LOCAL_URL}cart`,
           {
             action: heart === "add" ? "ADD_WISHLIST" : "DELETE_WISHLIST",
             product: e,
@@ -137,25 +146,28 @@ const Categories = () => {
           }
         );
         if (res.status === 200) {
-          console.log(res.data.wishlist, ";;;");
+         
           dispatch({ type: "ADD_TO_WISHLIST", payload: res.data.wishlist });
+          toast.success("Favorited! Keep exploring.");
         }
       } else {
         navigate("/login");
       }
     } catch (error) {
-      setLoad(false);
-      console.log(error);
+     
+      toast.error("Something Went Wrong !")
+    
     } finally {
-      setLoad(false);
+      // setLoad(false);
     }
   };
 
   return (
     <>
       <NavBar />
+      <ToastContainer autoClose={3000} transition={Bounce} position="bottom-center" />
       <div className="flex align-middle justify-center">
-        {load && <Loader />}
+        {/* {load && <Loader />} */}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 bg-[#176b8714] place-items-center p-2 relative">
         {selector.length !== 0 &&
@@ -168,16 +180,11 @@ const Categories = () => {
               >
                 <div className="h-full relative overflow-hidden rounded-t-xl">
                   <img
-                    className="w-full h-full object-cover rounded-t-xl cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out"
+                    className="w-full h-full object-fill rounded-t-xl cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out"
                     src={e.url}
                     alt=""
                     onClick={() => navigate(`/product/${e._id}`)}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      overflow: "hidden",
-                    }} // Set equal width and height for images
+                 // Set equal width and height for images
                   />
                   <div className="absolute bottom-0 left-0 w-full p-2 bg-black bg-opacity-50">
                     <p className="text-white text-sm truncate">{e.name}</p>
@@ -196,7 +203,6 @@ const Categories = () => {
                     onClick={() => addToCartHandler(e)}
                   >
                     Add To Cart
-                    {/* <img src={carts} alt="" /> */}
                   </button>
                   <button
                     className="text-xl"
@@ -211,6 +217,7 @@ const Categories = () => {
             );
           })}
       </div>
+      <Footer />
     </>
   );
 };

@@ -6,6 +6,12 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
+import logo from "../Assets/logo.svg";
+import {BASE_URL,LOCAL_URL } from "../config";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
+
 const Register = () => {
   const navigate = useNavigate();
   const {
@@ -16,13 +22,13 @@ const Register = () => {
   } = useForm();
 
   const [registrationError, setRegistrationError] = useState(null);
-  const [load, setLoad] = useState(false);
+  // const [load, setLoad] = useState(false);
 
   const onSubmit = async (data) => {
     try {
-      setLoad(true);
+      // setLoad(true);
       const response = await axios.post(
-        "https://kids-store-api.onrender.com/register",
+        `${LOCAL_URL}register`,
         data,
         {
           headers: {
@@ -30,22 +36,27 @@ const Register = () => {
           },
         }
       );
+      toast.success("Account activated!")
       navigate("/login");
     } catch (error) {
       if (error.response.status === 400) {
-        setLoad(false);
+        toast.error("User already exists.");
+        // setLoad(false);
         setRegistrationError("User already exists.");
         return;
       }
     } finally {
-      setLoad(false);
+      // setLoad(false);
     }
   };
 
   const password = watch("password");
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500">
+  <>
+  <ToastContainer autoClose={3000} transition={Bounce} position="bottom-center" />
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr bg-gray-100 from-blue-100">
       <div className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-4/12 bg-white p-8 rounded-lg shadow-md animate-fade-in">
+      <div className="flex justify-center items-center"><img src={logo} alt="" /></div>
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Register
         </h2>
@@ -175,7 +186,7 @@ const Register = () => {
           )}
         </div>
         <div className="flex align-middle justify-center p-3">
-          {load && <Loader />}
+          {/* {load && <Loader />} */}
         </div>
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
@@ -190,6 +201,7 @@ const Register = () => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 

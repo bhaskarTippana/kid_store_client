@@ -7,7 +7,7 @@ import App from "./App.jsx";
 import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "./Redux/store";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { BASE_URL, LOCAL_URL } from "./config.js";
 
 const Main = () => {
   const dispatch = useDispatch();
@@ -17,10 +17,9 @@ const Main = () => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          const res = await axios.get("http://localhost:5500/users", {
+          const res = await axios.get(`${LOCAL_URL}users`, {
             headers: { token: token },
           });
-          console.log(res.data, "opopop");
           if (res.status === 200) {
             dispatch({ type: "USER_DATA", payload: res.data });
             dispatch({ type: "USER_LOGIN", payload: true });
@@ -39,9 +38,7 @@ const Main = () => {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <GoogleOAuthProvider clientId="25996951861-91hotg0eq52ffadj39v40vr9npabejt1.apps.googleusercontent.com">
   <Provider store={store}>
-      <Main />
+    <Main />
   </Provider>
-  </GoogleOAuthProvider>
 );

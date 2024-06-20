@@ -4,10 +4,14 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import Loader from "./Loader";
 import { GoogleLogin } from "@react-oauth/google";
+import logo from "../Assets/logo.svg";
+import {BASE_URL,LOCAL_URL } from "../config";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const [err, setErr] = useState("");
-  const [load, setLoad] = useState(false);
+  // const [load, setLoad] = useState(false);
   const {
     register,
     formState: { errors },
@@ -19,9 +23,9 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       const key = username && username.includes("@") ? "email" : "firstName";
-      setLoad(true);
+  
       const response = await axios.post(
-        "https://kids-store-api.onrender.com/login",
+        `${LOCAL_URL}login`,
         { [key]: data.username, password: data.password },
         {
           headers: {
@@ -30,18 +34,22 @@ const Login = () => {
         }
       );
       localStorage.setItem("token", response.data.token);
+      toast.success("Hello! You're now logged in.");
       window.location.href = "/";
     } catch (error) {
       setErr(error.response?.data?.message || "An error occurred. Please try again.");
-      setLoad(false);
+     
     } finally {
-      setLoad(false);
+    
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 to-yellow-500">
+   <>
+    <ToastContainer autoClose={3000} transition={Bounce} position="bottom-center" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr bg-gray-100 from-blue-100">
       <div className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-4/12 bg-white p-8 rounded-lg shadow-md animate-fade-in">
+      <div className="flex justify-center items-center"><img src={logo} alt="" /></div>
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Login
         </h2>
@@ -104,22 +112,12 @@ const Login = () => {
             </a>
           </p>
         </div>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">Or continue with:</p>
-          <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                console.log(credentialResponse);
-              }}
-              onError={() => {
-                console.log("Login Failed");
-              }}
-            />
-        </div>
         <div className="flex align-middle justify-center p-3">
-          {load && <Loader />}
+          {/* {load && <Loader />} */}
         </div>
       </div>
     </div>
+   </>
   );
 };
 

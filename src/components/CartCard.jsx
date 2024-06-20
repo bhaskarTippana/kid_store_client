@@ -5,8 +5,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import deleted from "../Assets/delete.svg";
+import {BASE_URL,LOCAL_URL } from "../config"
 
-const CartCard = ({ e, setActualCost, setPremium }) => {
+const CartCard = ({ e, setActualCost, setPremium,toast }) => {
   const productPrice = Math.ceil(Number(e.price.replace("$", "")));
   const actualPrice = Math.ceil(Number(e.price.replace("$", "")) * e.quantity);
   const discountPrice = Math.ceil(
@@ -35,12 +36,12 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
     try {
       if (token) {
         const res = await axios.post(
-          "http://localhost:5500/cart",
+          `${LOCAL_URL}cart`,
           { action: "INCREMENT_QUANTITY", product: e },
           { headers: { token: token } }
         );
         if (res.status === 200) {
-          console.log(res.data.cart, "///////");
+   
           dispatch({ type: "INCREASE_PRODUCT", payload: res.data.cart });
           setActualCost((prev) => prev + productPrice);
           setPremium(
@@ -55,7 +56,7 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
     try {
       if (token) {
         const res = await axios.post(
-          "http://localhost:5500/cart",
+          `${LOCAL_URL}cart`,
           {
             action: "DECREMENT_QUANTITY",
             product: e,
@@ -65,7 +66,7 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
           }
         );
         if (res.status === 200) {
-          console.log(res.data.cart);
+       
           dispatch({ type: "DECREASE_PRODUCT", payload: res.data.cart });
           setActualCost((prev) =>
             prev > productPrice ? prev - productPrice : prev
@@ -88,30 +89,31 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
       }
 
       const res = await axios.post(
-        "https://kids-store-api.onrender.com/cart",
+        `${LOCAL_URL}cart`,
         { action: "DELETE_CART", product: e },
         { headers: { token } }
       );
 
       if (res.status === 200) {
+        toast.error("Deleted! Your cart is lighter.");
         setActualCost((prev) => {
           const newActualCost = prev - totalActualPrice;
-          console.log(newActualCost);
+    
           return newActualCost;
         });
         dispatch({ type: "DELETE_FROM_CART", payload: e });
 
         const totalActualPrice = Number(e.price.replace("$", "")) * e.quantity;
-        console.log(totalActualPrice, "total");
+     
 
         const totalDiscountPrice =
           totalActualPrice - (totalActualPrice * e.discount) / 100;
-        console.log(totalDiscountPrice, "discounted total");
+      
 
 
         setPremium((prev) => {
           const newPremium = prev - totalDiscountPrice;
-          console.log(newPremium);
+       
           return newPremium;
         });
       }
@@ -125,7 +127,7 @@ const CartCard = ({ e, setActualCost, setPremium }) => {
   return (
     <div className="h-80 bg-white m-3 rounded-xl border grid grid-cols-12">
       <div className="col-span-12 md:col-span-6 m-5 bg-gray-100 h-28 md:h-64 md:p-4">
-        <img className="h-full w-full rounded-xl" src={e.url} alt={e.name} />
+        <img className="h-full w-full rounded-xl object-fill" src={e.url} alt={e.name} />
       </div>
       <div className="col-span-12 md:col-span-3 md:m-5 grid text-[0.8rem] pl-5 md:text-[1em] md:pl-0">
         <h1>

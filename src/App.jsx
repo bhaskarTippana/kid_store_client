@@ -31,7 +31,7 @@ function App() {
         <Route path="/checkout" element={<CheckoutForm />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-cancel" component={PaymentCancel} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
       </Routes>
     </BrowserRouter>
   );

@@ -9,7 +9,9 @@ let initialState = {
     wishlist: [],
     cart: [],
     buyCart: [],
-    buyProductsCart:[]
+    buyProductsCart: [],
+    myOrders: [],
+    address: {},
   },
   myProducts: [],
 };
@@ -19,19 +21,15 @@ const rootReducer = (state = initialState, action) => {
 
   switch (type) {
     case "USER_LOGIN":
-      console.log(payload);
       return { ...state, isLogin: payload };
 
     case "MY_PRODUCTS":
       return { ...state, myProducts: [...payload] };
 
     case "USER_DATA":
-      console.log(payload);
       return { ...state, user: { ...payload } };
 
     case "ADD_TO_CART":
-      console.log(payload);
-      console.log(state.user.cart);
       const combinedCart = [...state.user.cart, ...payload];
       const uniqueCart = combinedCart.filter(
         (item, index, self) =>
@@ -56,12 +54,11 @@ const rootReducer = (state = initialState, action) => {
       };
 
     case "ADD_TO_WISHLIST":
-      console.log(payload);
       return {
         ...state,
         user: {
           ...state.user,
-          wishlist: [...state.user.wishlist, ...payload],
+          wishlist: payload,
         },
       };
 
@@ -77,7 +74,6 @@ const rootReducer = (state = initialState, action) => {
       };
 
     case "SINGLE_PRODUCT_ADD":
-      console.log(payload);
       return {
         ...state,
         user: {
@@ -87,7 +83,6 @@ const rootReducer = (state = initialState, action) => {
       };
 
     case "INCREASE_PRODUCT":
-      console.log(payload);
       return {
         ...state,
         user: {
@@ -97,7 +92,6 @@ const rootReducer = (state = initialState, action) => {
       };
 
     case "DECREASE_PRODUCT":
-      console.log(payload);
       return {
         ...state,
         user: {
@@ -106,13 +100,32 @@ const rootReducer = (state = initialState, action) => {
         },
       };
 
-      case "BUY_CART_PRODUCTS":
-        console.log(payload);
+    case "BUY_CART_PRODUCTS":
       return {
-        ...state,user:{
-          ...state.user,buyProductsCart:payload
-        }
-      }
+        ...state,
+        user: {
+          ...state.user,
+          buyProductsCart: payload,
+        },
+      };
+
+    case "MY_ORDERS":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          myOrders: payload,
+        },
+      };
+
+    case "UPDATE_ADDRESS":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          address: { ...payload },
+        },
+      };
 
     default:
       return state;

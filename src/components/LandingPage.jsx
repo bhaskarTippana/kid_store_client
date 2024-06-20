@@ -8,36 +8,13 @@ import { redirect, useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import Register from "./Register";
+import {BASE_URL,LOCAL_URL } from "../config"
+
+
 const LandingPage = () => {
   let dispatch = useDispatch();
   let is = useSelector((e) => e.user);
 
-  async function getAuth() {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        let res = await axios.get("http://localhost:5500/users", {
-          headers: {
-            token,
-          },
-        });
-        if (res.status === 200) {
-          dispatch({ type: "USER_DATA", payload: res.data });
-        } else {
-          console.log("failed to verify the token");
-        }
-      } catch (error) {
-        console.log("you have token but it is not valid");
-      }
-    } else {
-      console.log("not logged in cannot access all features !");
-    }
-  }
-
-  useEffect(() => {
-    // getTitles();
-    getAuth();
-  }, []);
 
   return (
 
@@ -70,7 +47,7 @@ const LandingPage = () => {
             Where Every Kid's Dream Comes True, Discover a World of Wonder for
             Your Little Ones!
           </p>
-          <p className="text-base md:text-md lg:text-lg">
+          <p className="text-base md:text-md lg:text-lg md:px-3">
             At KIDS_STORE, we believe in making every childhood magical. Our
             carefully curated collection of kids' essentials brings together
             quality, creativity, and joy. From adorable clothing to educational

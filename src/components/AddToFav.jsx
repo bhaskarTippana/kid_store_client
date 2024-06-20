@@ -5,39 +5,24 @@ import { NavBar } from "./NavBar";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import NoProductPage from "./NoProductPage";
+import Footer from "./Footer";
+import {BASE_URL,LOCAL_URL } from "../config";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
+
 const AddToFav = () => {
   let token = localStorage.getItem("token");
   const selector = useSelector((e) => e.user);
   const listItems = selector.wishlist;
   const dispatch = useDispatch();
-  const AddedProducts = async () => {
-    try {
-      if (token) {
-        const res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
-          {},
-          {
-            headers: {
-              token,
-            },
-          }
-        );
-        dispatch({ type: "ADD_TO_WISHLIST", payload: res.data });
-      } else {
-        navigate("/login");
-      }
-    } catch (error) {}
-  };
 
-  useEffect(() => {
-    AddedProducts();
-  }, []);
 
   const handleRemove = async (e) => {
     try {
       if (token) {
         let res = await axios.post(
-          "https://kids-store-api.onrender.com/cart",
+          `${LOCAL_URL}cart`,
           {
             action: "DELETE_WISHLIST",
             product: e,
@@ -49,7 +34,8 @@ const AddToFav = () => {
           }
         );
         if (res.status === 200) {
-          console.log(res.data);
+          toast.error("Removed! Continue exploring.");
+        
           dispatch({ type: "DELETE_FROM_WISHLIST", payload: e });
         }
       } else {
@@ -63,16 +49,17 @@ const AddToFav = () => {
   return (
     <>
       <NavBar />
+      <ToastContainer autoClose={3000} transition={Bounce} position="bottom-center" />
       {listItems.length > 0 ? (
-        <div className="m-3 rounded-xl border min-h-screen">
+        <div className="m-3 rounded-xl border">
           <h1 className="md:pt-5 md:px-5 md:text-3xl font-semibold col-span-12 pl-3 pt-3">
-            Shopping Cart!
+            WishList !
           </h1>
 
           <div className="col-span-12 p-2 m-2">
             <div className="grid grid-cols-12 text-[0.8rem] md:text-[1rem] place-items-center border-b-[1px] font-bold">
-              <div className="col-span-3">Product</div>
-              <div className="col-span-2">Name</div>
+              <div className="col-span-5 md:col-span-3">Product</div>
+              <div className="hidden md:block col-span-2">Name</div>
               <div className="col-span-2">Price</div>
               <div className="col-span-2">Rating</div>
               <div className="col-span-3">Remove Item</div>
@@ -80,10 +67,14 @@ const AddToFav = () => {
             {listItems.map((e, _) => (
               <div key={_}>
                 <div className="grid grid-cols-12 text-[0.8rem] md:text-[1rem] place-items-center border-b-[1px] py-4">
-                  <div className="col-span-3 h-12 md:h-32 w-full md:w-40 object-contain">
+                  <div className="col-span-5 md:col-span-3 h-12 md:h-32 w-full md:w-40 object-contain">
                     <img className="p-1 w-full h-full" src={e.url} alt="" />
+                    <p className="md:hidden text-ellipsis overflow-hidden whitespace-nowrap">
+                      {e.name}
+                    </p>
                   </div>
-                  <div className="col-span-2 text-ellipsis text-wrap overflow-hidden">
+
+                  <div className=" hidden md:block col-span-2 text-ellipsis text-wrap overflow-hidden">
                     {e.name}
                   </div>
                   <div className="col-span-2">{e.price}</div>
@@ -104,6 +95,7 @@ const AddToFav = () => {
       ) : (
         <NoProductPage />
       )}
+      <Footer />
     </>
   );
 };

@@ -15,6 +15,8 @@ import fav from "../Assets/fav.svg";
 import user from "../Assets/user.svg";
 import logout from "../Assets/logout.svg";
 import login from "../Assets/login.svg";
+import { BASE_URL, LOCAL_URL } from "../config";
+
 export const NavBar = () => {
   const [sidebar, setSidebar] = useState(false);
   const [searchBar, setSearchBar] = useState(false);
@@ -26,36 +28,42 @@ export const NavBar = () => {
   const [title, setTitle] = useState([]);
   const [options, setOptions] = useState(false);
   const getTitles = async () => {
-    const res = await axios.get(
-      "https://kids-store-api.onrender.com/kids-store/titles"
-    );
+    const res = await axios.get(`${LOCAL_URL}kids-store/titles`);
     setTitle(res.data);
-  };
-
-  const userIn = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const res = await axios.get("http://localhost:5500/users", {
-          headers: { token: token },
-        });
-        dispatch({ type: "USER_DATA", payload: res.data });
-      }
-    } catch (error) {}
   };
 
   useEffect(() => {
     getTitles();
-    // userIn();
   }, []);
-
-  const handleOpenCart = () => {
-    navigate("/cartItems");
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    navigate("/");
     window.location.reload();
+   
+  };
+
+  const MyOrders = async () => {
+    const token = localStorage.getItem("token");
+
+    const payload = {
+      action: "MY_ORDER_LIST",
+      product:
+        selector.user.buyCart.length > 0
+          ? selector.user.buyCart
+          : selector.user.buyProductsCart,
+    };
+    try {
+      const res = await axios.post(`${LOCAL_URL}cart`, payload, {
+        headers: { token: token },
+      });
+
+      if (res.status === 200) {
+        dispatch({ type: "MY_ORDERS", payload: res.data.myOrders });
+      }
+    } catch (error) {
+      console.error("Error updating orders:", error);
+    }
   };
 
   return (
@@ -64,7 +72,7 @@ export const NavBar = () => {
         <SearchInput setSearchBar={setSearchBar} />
       ) : (
         <div className="grid grid-cols-12 py-2 place-items-center bg-[#176B87] text-white relative">
-          {sidebar ? <SideBar /> : ""}
+          {sidebar ? <SideBar setSidebar={setSidebar} sidebar={sidebar} /> : ""}
           <div className="col-span-6 flex items-center justify-center grid-cols-12 md:col-span-3 lg:col-span-3 lg:w-full">
             <div className="col-span-2 md:mr-3 lg:hidden">
               <img
@@ -76,7 +84,11 @@ export const NavBar = () => {
             </div>
             <div className="col-span-10 lg:col-span-3">
               <img
-                onClick={() => navigate("/")}
+                onClick={() => {
+                  selector.user.buyCart.length > 0 ||
+                    (selector.user.buyProductsCart.length > 0 && MyOrders());
+                  navigate("/");
+                }}
                 className="h-12 w-[125px] md:h-16 lg:ml-3"
                 src={logo}
                 alt=""
@@ -111,8 +123,8 @@ export const NavBar = () => {
             </div>
             {selector.isLogin && selector?.user?.cart?.length > 0 && (
               <div
-                className="col-span-4 cursor-pointer"
-                onClick={handleOpenCart}
+                className="col-span-4 cursor-pointer hidden md:block"
+                onClick={() => navigate("/cartItems")}
               >
                 <div className="relative">
                   <img src={cart} alt="Cart" />
@@ -126,7 +138,7 @@ export const NavBar = () => {
             )}
 
             {selector?.isLogin && selector?.user?.wishlist?.length > 0 && (
-              <div>
+              <div className="hidden md:block">
                 <span
                   onClick={() => navigate("/wishlist")}
                   className="cursor-pointer"
@@ -136,25 +148,6 @@ export const NavBar = () => {
               </div>
             )}
 
-            {/* <div className="col-span-4 relative">
-              <button
-                className="text-xl h-9 w-9 rounded-full bg-lime-500 grid place-items-center"
-                // onClick={() => navigate("/login")}
-                onMouseEnter={() => setList(true)}
-                onMouseLeave={() => setList(false)}
-              >
-                {selector.firstName
-                  ? selector.firstName.slice(0, 1).toUpperCase()
-                  : "@"}
-              </button>
-              {list && (
-                <ul className="absolute top-10 z-50 w-fit h-fit bg-black rounded-lg right-3 text-center p-3 text-xl">
-                  <li>Profile</li>
-                  <li>Logout</li>
-                  <li>Login</li>
-                </ul>
-              )}
-            </div> */}
             <div className="col-span-4 relative">
               <button
                 className="text-xl h-9 w-9 rounded-full bg-lime-500 grid place-items-center hover:bg-lime-600 transition duration-300"
@@ -165,26 +158,33 @@ export const NavBar = () => {
                   : "@"}
               </button>
               {options && (
-                <ul className="absolute top-7 z-50 grid align-middle m-3 w-32 gap-y-3  p-3  bg-black rounded-lg right-2 text-xl text-white shadow-lg">
-                  <li
-                    className="hover:bg-gray-700 cursor-pointer rounded flex py-2  align-middle hover:border"
-                    onClick={() => navigate("/profile")}
-                  >
-                    <img src={user} alt="" className="pr-2" /> <p>Profile</p>
-                  </li>
-                  <li
-                    className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
-                    onClick={() => handleLogout()}
-                  >
-                    <img src={logout} alt="" className="pr-2" /> <p>Logout</p>
-                  </li>
-
-                  <li
-                    className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
-                    onClick={() => navigate("/login")}
-                  >
-                    <img src={login} alt="" className="pr-2" /> <p>Login</p>
-                  </li>
+                <ul className="absolute top-7 z-50 grid align-middle m-3 w-32 gap-y-3 p-3 bg-black rounded-lg right-2 text-xl text-white shadow-lg">
+                  {selector?.isLogin ? (
+                    <>
+                      <li
+                        className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
+                        onClick={() => navigate("/profile")}
+                      >
+                        <img src={user} alt="Profile" className="pr-2" />
+                        <p>Profile</p>
+                      </li>
+                      <li
+                        className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
+                        onClick={() => handleLogout()}
+                      >
+                        <img src={logout} alt="Logout" className="pr-2" />
+                        <p>Logout</p>
+                      </li>
+                    </>
+                  ) : (
+                    <li
+                      className="hover:bg-gray-700 cursor-pointer rounded flex py-2 align-middle hover:border"
+                      onClick={() => navigate("/login")}
+                    >
+                      <img src={login} alt="Login" className="pr-2" />
+                      <p>Login</p>
+                    </li>
+                  )}
                 </ul>
               )}
             </div>

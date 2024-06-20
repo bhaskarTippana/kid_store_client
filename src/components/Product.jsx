@@ -5,6 +5,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { NavBar } from "./NavBar";
 import { useDispatch } from "react-redux";
+import {BASE_URL,LOCAL_URL } from "../config";
+import Footer from "./Footer";
 
 const Product = () => {
   const params = useParams();
@@ -15,24 +17,24 @@ const Product = () => {
 
   const getSpec = async () => {
     const res = await axios.get(
-      `https://kids-store-api.onrender.com/kids-store/products/${params.id}`
+      `${LOCAL_URL}kids-store/products/${params.id}`
     );
     setSpecificProduct(res.data);
-    console.log(res.data);
+
   };
 
   useEffect(() => {
     getSpec();
-    //  console.log(params.id);
+   
   }, []);
   const handleClick = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5500/buyCart",
+        `${LOCAL_URL}buyCart`,
         { action: "SINGLE_PRODUCT_ADD", product: specificProduct },
         { headers: { token: token } }
       );
-      console.log(res.data);
+   
       if (res.status === 200) {
         dispatch({ type: "SINGLE_PRODUCT_ADD", payload: res.data.buyCart });
         dispatch({type:"BUY_CART_PRODUCTS",payload:res.data.buyProductsCart})
@@ -55,7 +57,7 @@ const Product = () => {
               <div className="relative">
                 <img
                   src={specificProduct.url}
-                  className="w-full relative z-10"
+                  className="object-fill relative z-10"
                   alt=""
                 />
               </div>
@@ -88,6 +90,7 @@ const Product = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

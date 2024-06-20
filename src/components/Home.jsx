@@ -4,21 +4,23 @@ import { NavBar } from "./NavBar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
+import Footer from "./Footer";
+import {BASE_URL,LOCAL_URL } from "../config"
 const Home = () => {
   const [categories, setCateories] = useState([]);
-  const [load, setLoad] = useState(false);
+  // const [load, setLoad] = useState(false);
 
   const getData = async () => {
     try {
-      setLoad(true);
+      // setLoad(true);
       const res = await axios.get(
-        "https://kids-store-api.onrender.com/kids-store/categories"
+        `${LOCAL_URL}kids-store/categories`
       );
       setCateories(res.data);
     } catch (error) {
-      setLoad(false);
+      // setLoad(false);
     } finally {
-      setLoad(false);
+      // setLoad(false);
     }
   };
 
@@ -38,7 +40,7 @@ const Home = () => {
       <h1 className="text-xl px-5 pt-3 md:text-2xl lg:text-3xl font-bold lg:px-10">
         Shop by Categories
       </h1>
-      <div className="flex align-middle justify-center">{load&&<Loader/>}</div>
+      {/* <div className="flex align-middle justify-center">{load&&<Loader/>}</div> */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {categories.length !== 0
           ? categories.map((e, _) => {
@@ -63,6 +65,7 @@ const Home = () => {
             })
           : ""}
       </div>
+      <Footer />
     </>
   );
 };
