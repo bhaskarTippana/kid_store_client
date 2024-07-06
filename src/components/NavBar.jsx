@@ -16,12 +16,13 @@ import user from "../Assets/user.svg";
 import logout from "../Assets/logout.svg";
 import login from "../Assets/login.svg";
 import { BASE_URL, LOCAL_URL } from "../config";
+import SearchItems from "./SearchItems";
 
 export const NavBar = () => {
   const [sidebar, setSidebar] = useState(false);
   const [searchBar, setSearchBar] = useState(false);
-  const [focus, setFocus] = useState(false);
   const [searchInfo, setSearchInfo] = useState("");
+  const [focus, setFocus] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selector = useSelector((e) => e);
@@ -40,7 +41,6 @@ export const NavBar = () => {
     localStorage.removeItem("token");
     navigate("/");
     window.location.reload();
-   
   };
 
   const MyOrders = async () => {
@@ -69,7 +69,13 @@ export const NavBar = () => {
   return (
     <>
       {searchBar ? (
-        <SearchInput setSearchBar={setSearchBar} />
+        <SearchInput
+          setSearchBar={setSearchBar}
+          searchInfo={searchInfo}
+          setFocus={setFocus}
+          setSearchInfo={setSearchInfo}
+          focus={focus}
+        />
       ) : (
         <div className="grid grid-cols-12 py-2 place-items-center bg-[#176B87] text-white relative">
           {sidebar ? <SideBar setSidebar={setSidebar} sidebar={sidebar} /> : ""}
@@ -106,9 +112,10 @@ export const NavBar = () => {
 
           <div className="hidden md:col-span-6 md:block lg:col-span-6">
             <SearchInput
-              setFocus={setFocus}
               searchInfo={searchInfo}
               setSearchInfo={setSearchInfo}
+              focus={focus}
+              setFocus={setFocus}
             />
           </div>
 
@@ -118,7 +125,10 @@ export const NavBar = () => {
                 className="h-6 w-7 lg:hidden md:hidden"
                 src={search}
                 alt=""
-                onClick={() => setSearchBar(!searchBar)}
+                onClick={() => {
+                  setSearchBar(!searchBar);
+                  setFocus(!focus);
+                }}
               />
             </div>
             {selector.isLogin && selector?.user?.cart?.length > 0 && (
@@ -191,49 +201,19 @@ export const NavBar = () => {
           </div>
         </div>
       )}
-      {/* 
+
       {focus && (
-        <div className="col-span-12 grid grid-cols-12 items-center justify-center bg-[#dddddd] absolute z-40 w-screen h-full">
-          {title.length !== 0 &&
-            title.map((e, _) => {
-              return searchInfo === "" ? (
-                <div
-                  onClick={() => {
-                    navigate(`/category/${e.title}`), setFocus(true);
-                  }}
-                  key={_}
-                  className="h-28 w-28 md:h-48 md:w-48 mx-auto rounded-full col-span-4 lg:col-span-3 m-3 border relative"
-                  style={{
-                    background: `url(${e.title_url})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                  }}
-                >
-                  <p className="absolute bottom-5 text-center w-full font-bold md:text-xl text-white bg-[#dddddd75] rounded-b-xl">
-                    {e.title}
-                  </p>
-                </div>
-              ) : (
-                e.title.includes(searchInfo) && (
-                  <div
-                    onClick={() => navigate(`/category/${e.title}`)}
-                    key={_}
-                    className="h-28 w-28 md:h-48 md:w-48 mx-auto rounded-full col-span-4 lg:col-span-3 m-3 border relative"
-                    style={{
-                      background: `url(${e.title_url})`,
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                    }}
-                  >
-                    <p className="absolute bottom-5 text-center w-full font-bold md:text-xl text-white bg-[#dddddd75] rounded-b-xl">
-                      {e.title}
-                    </p>
-                  </div>
-                )
-              );
-            })}
+        <div
+          className="bg-[#0000005d] absolute z-50 top-20 w-full left-0 h-[55em] md:h-screen"
+          onClick={() =>{setSearchInfo(""); setFocus(false)}}
+        >
+          <SearchItems
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            setFocus={setFocus}
+          />
         </div>
-      )} */}
+      )}
     </>
   );
 };

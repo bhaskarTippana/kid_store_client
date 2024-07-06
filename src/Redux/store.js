@@ -14,6 +14,7 @@ let initialState = {
     address: {},
   },
   myProducts: [],
+  Products:[],
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -22,6 +23,9 @@ const rootReducer = (state = initialState, action) => {
   switch (type) {
     case "USER_LOGIN":
       return { ...state, isLogin: payload };
+
+      case "PRODUCTS":
+        return { ...state, Products: [...payload] };
 
     case "MY_PRODUCTS":
       return { ...state, myProducts: [...payload] };

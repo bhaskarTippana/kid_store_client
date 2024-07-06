@@ -70,7 +70,6 @@ const BuyCart = ({ data, setSubTotal }) => {
           </span>
           <span className="font-semibold text-gray-600 text-sm">.00</span>
         </div>
-        {/* <button onClick={()=>handleRemove()} className="text-3xl pl-5"><img src={deleted} alt="" /></button> */}
       </div>
     </div>
   );

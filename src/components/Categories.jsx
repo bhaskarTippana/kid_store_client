@@ -9,11 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
 import carts from "../Assets/carts.svg";
 import Footer from "./Footer";
-import {BASE_URL,LOCAL_URL } from "../config";
+import { BASE_URL, LOCAL_URL } from "../config";
 import { Bounce, ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-
-
+import "react-toastify/dist/ReactToastify.css";
 
 function StarRating({ rating }) {
   const fullStars = Math.floor(rating);
@@ -59,6 +57,8 @@ const Categories = () => {
   let token = localStorage.getItem("token");
   const dispatch = useDispatch();
   const selector = useSelector((e) => e.myProducts);
+  const userWishlist = useSelector((e) => e.user.wishlist);
+  console.log(userWishlist, "userWishlist");
   const { category } = useParams();
   const navigate = useNavigate();
   const [wishlist, setWishList] = useState(
@@ -66,21 +66,17 @@ const Categories = () => {
   );
   const getCategories = async () => {
     try {
-      // setLoad(true);
       const res = await axios.get(
         `${LOCAL_URL}kids-store/category/${category}`
       );
       dispatch({ type: "MY_PRODUCTS", payload: res.data });
     } catch (error) {
-      // setLoad(false);
     } finally {
-      // setLoad(false);
     }
   };
 
   const addToCartHandler = async (e) => {
     try {
-      // setLoad(true);
       if (token) {
         let res = await axios.post(
           `${LOCAL_URL}cart`,
@@ -95,14 +91,11 @@ const Categories = () => {
           }
         );
         if (res.status === 200) {
-        
           toast.success("Great choice! It's in your cart.");
           dispatch({
             type: "ADD_TO_CART",
             payload: res.data.cart,
           });
-
-          // setLoad(false);
         }
       } else {
         navigate("/login");
@@ -110,9 +103,8 @@ const Categories = () => {
     } catch (error) {
       toast.error("Something Went Wrong !");
       console.error("Error:", error);
-      // setLoad(false);
+      navigate("/login");
     } finally {
-      // setLoad(false);
     }
   };
 
@@ -122,17 +114,7 @@ const Categories = () => {
 
   const handleWishList = async (e, heart, _) => {
     try {
-      // setLoad(true);
       if (token) {
-        for (let index = 0; index < selector.length; index++) {
-          if (index === _) {
-            setWishList((prevWishlist) => {
-              const updatedWishlist = [...prevWishlist];
-              updatedWishlist[_] = heart === "add";
-              return updatedWishlist;
-            });
-          }
-        }
         let res = await axios.post(
           `${LOCAL_URL}cart`,
           {
@@ -145,30 +127,79 @@ const Categories = () => {
             },
           }
         );
+        console.log(res.data, "resssss");
         if (res.status === 200) {
-         
           dispatch({ type: "ADD_TO_WISHLIST", payload: res.data.wishlist });
-          toast.success("Favorited! Keep exploring.");
+          toast.success("Favored! Keep exploring.");
+        }
+
+        for (let index = 0; index < selector.length; index++) {
+          if (index === _) {
+            setWishList((prevWishlist) => {
+              const updatedWishlist = [...prevWishlist];
+              updatedWishlist[_] = heart === "add";
+              return updatedWishlist;
+            });
+          }
         }
       } else {
         navigate("/login");
       }
     } catch (error) {
-     
-      toast.error("Something Went Wrong !")
-    
+      toast.error("Something Went Wrong !");
+      navigate("/login");
     } finally {
-      // setLoad(false);
     }
   };
+
+  // const handleWishList = async (e, heart, _) => {
+  //   try {
+  //     if (token) {
+  //       let actionType = heart === "add" ? "ADD_WISHLIST" : "DELETE_WISHLIST";
+  
+  //       let res = await axios.post(
+  //         `${LOCAL_URL}cart`,
+  //         {
+  //           action: actionType,
+  //           product: e,
+  //         },
+  //         {
+  //           headers: {
+  //             token,
+  //           },
+  //         }
+  //       );
+  //       console.log(res.data, "resssss");
+  //       if (res.status === 200) {
+  //         dispatch({ type: "ADD_TO_WISHLIST", payload: res.data.wishlist });
+  //         toast.success("Favored! Keep exploring.");
+  
+  //         // Assuming res.data.wishlist includes updated wishlist items, handle locally:
+  //         setWishList((prevWishlist) => {
+  //           const updatedWishlist = [...prevWishlist];
+  //           updatedWishlist[_].favorite = actionType === "ADD_WISHLIST"; // Update locally based on actionType
+  //           return updatedWishlist;
+  //         });
+  //       }
+  //     } else {
+  //       navigate("/login");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Something Went Wrong !");
+  //     navigate("/login");
+  //   }
+  // };
+  
 
   return (
     <>
       <NavBar />
-      <ToastContainer autoClose={3000} transition={Bounce} position="bottom-center" />
-      <div className="flex align-middle justify-center">
-        {/* {load && <Loader />} */}
-      </div>
+      <ToastContainer
+        autoClose={3000}
+        transition={Bounce}
+        position="bottom-center"
+      />
+      <div className="flex align-middle justify-center"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 bg-[#176b8714] place-items-center p-2 relative">
         {selector.length !== 0 &&
           selector.map((e, index) => {
@@ -184,7 +215,7 @@ const Categories = () => {
                     src={e.url}
                     alt=""
                     onClick={() => navigate(`/product/${e._id}`)}
-                 // Set equal width and height for images
+                    // Set equal width and height for images
                   />
                   <div className="absolute bottom-0 left-0 w-full p-2 bg-black bg-opacity-50">
                     <p className="text-white text-sm truncate">{e.name}</p>

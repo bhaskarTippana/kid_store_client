@@ -26,7 +26,7 @@ const Product = () => {
   useEffect(() => {
     getSpec();
    
-  }, []);
+  }, [params.id]);
   const handleClick = async () => {
     try {
       const res = await axios.post(
@@ -44,6 +44,7 @@ const Product = () => {
       }
     } catch (error) {
       console.error(error);
+      navigate("/login");
     }
   };
 
