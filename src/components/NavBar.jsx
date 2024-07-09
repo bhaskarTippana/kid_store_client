@@ -204,7 +204,7 @@ export const NavBar = () => {
 
       {focus && (
         <div
-          className="bg-[#0000005d] absolute z-50 top-20 w-full left-0 h-[55em] md:h-screen"
+          className="bg-[#0000005d] absolute z-50 top-20 w-full left-0 h-[55em] md:h-screen scrollbar-hide"
           onClick={() =>{setSearchInfo(""); setFocus(false)}}
         >
           <SearchItems

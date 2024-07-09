@@ -58,7 +58,6 @@ const Categories = () => {
   const dispatch = useDispatch();
   const selector = useSelector((e) => e.myProducts);
   const userWishlist = useSelector((e) => e.user.wishlist);
-  console.log(userWishlist, "userWishlist");
   const { category } = useParams();
   const navigate = useNavigate();
   const [wishlist, setWishList] = useState(
@@ -127,7 +126,6 @@ const Categories = () => {
             },
           }
         );
-        console.log(res.data, "resssss");
         if (res.status === 200) {
           dispatch({ type: "ADD_TO_WISHLIST", payload: res.data.wishlist });
           toast.success("Favored! Keep exploring.");
@@ -151,45 +149,6 @@ const Categories = () => {
     } finally {
     }
   };
-
-  // const handleWishList = async (e, heart, _) => {
-  //   try {
-  //     if (token) {
-  //       let actionType = heart === "add" ? "ADD_WISHLIST" : "DELETE_WISHLIST";
-  
-  //       let res = await axios.post(
-  //         `${LOCAL_URL}cart`,
-  //         {
-  //           action: actionType,
-  //           product: e,
-  //         },
-  //         {
-  //           headers: {
-  //             token,
-  //           },
-  //         }
-  //       );
-  //       console.log(res.data, "resssss");
-  //       if (res.status === 200) {
-  //         dispatch({ type: "ADD_TO_WISHLIST", payload: res.data.wishlist });
-  //         toast.success("Favored! Keep exploring.");
-  
-  //         // Assuming res.data.wishlist includes updated wishlist items, handle locally:
-  //         setWishList((prevWishlist) => {
-  //           const updatedWishlist = [...prevWishlist];
-  //           updatedWishlist[_].favorite = actionType === "ADD_WISHLIST"; // Update locally based on actionType
-  //           return updatedWishlist;
-  //         });
-  //       }
-  //     } else {
-  //       navigate("/login");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Something Went Wrong !");
-  //     navigate("/login");
-  //   }
-  // };
-  
 
   return (
     <>

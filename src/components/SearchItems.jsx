@@ -13,9 +13,7 @@ const SearchItems = ({ setSearchInfo, searchInfo, setFocus }) => {
 
   const getProducts = async () => {
     try {
-      const res = await axios.get(
-        `${LOCAL_URL}kids-store/products/all`
-      );
+      const res = await axios.get(`${LOCAL_URL}kids-store/products/all`);
       dispatch({ type: "PRODUCTS", payload: res.data });
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -36,7 +34,7 @@ const SearchItems = ({ setSearchInfo, searchInfo, setFocus }) => {
   }, [paths]);
 
   return (
-    <ul className="h-[40em] w-[40em] bg-[#fff] m-auto rounded-md overflow-y-scroll">
+    <ul className="h-full w-full md:h-[40em] md:w-[40em] bg-[#fff] m-auto rounded-md overflow-y-scroll">
       {products.length > 0 && searchInfo === "" ? (
         products.map((product) => (
           <li
